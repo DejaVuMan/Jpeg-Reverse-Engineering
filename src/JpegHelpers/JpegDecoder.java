@@ -64,16 +64,73 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         decodeHuffmanTables(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length));
                     }
-                    // more cases here
+                    case 0xffdb -> { // Quantization Table
+                        int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
+                        decodeQuantizationTables(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length));
+                    }
+                    case 0xffdd -> { // Define Restart Interval
+                        int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
+                        int[] arr = Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length);
+                        restartInterval = Arrays.stream(arr).sum();
+                    }
+                    case 0xffc0 -> { // Start of Frame (Baseline)
+                        int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
+                        decodeStartOfFrame(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length));
+                        if(mode == -1) mode = 0;
+                    }
+                    case 0xffc2 -> { // Start of Frame (Progressive)
+                        if(mode == -1) mode = 1;
+                    }
+                    case 0xffda -> { // Start of Scan
+                        int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
+                        decodeStartOfScan(
+                                /*Arrays.copyOfRange(jpegImgData, i + 4, i + 2 + length),*/
+                                Arrays.copyOfRange(jpegImageData, i + 2 + length, jpegImageData.length - 2));
+                        // last 2 two bytes are 0xffd9 - EOI
+                        break main; // all done!
+                    }
                 }
             }
         }
     }
 
-    private void decodeHuffmanTables(int[] chunk){
+    private void decodeHuffmanTables(int[] chunk){ // 00, 01, 10, 11 - 0, 1, 16, 17 - Y DC, CbCr DC, Y AC, CbCr AC
         int cd = chunk[0];
-        // ...
+
+        /*
+        A Chunk of data contains various bytes.
+        The first byte, or "nibble", is the class
+        The second nibble is the destination
+        a 0 class means we want DC, a 1 class means we want AC
+         */
+
+        int[] length = Arrays.copyOfRange(chunk, 1, 17);
+        int to = 17 + Arrays.stream(length).sum();
+        int[] symbols = Arrays.copyOfRange(chunk, 17, to);
+
+        HashMap<Integer, int[]> lookupTable = new HashMap<>(); // code lengths and symbols
+        int si = 0;
+        for(int i = 0; i < length.length; i++){
+            int l = length[i];
+            int[] symbolsOfLengthI = new int[l];
+            for(int j = 0; j < l; j++){
+                symbolsOfLengthI[j] = symbols[si];
+                si++;
+            }
+            lookupTable.put(i + 1, symbolsOfLengthI);
+        }
+        huffmanTables.put(cd, new HuffmanTable(lookupTable));
+
+        int[] newChunk = Arrays.copyOfRange(chunk, to, chunk.length);
+        if(newChunk.length > 0) decodeHuffmanTables(newChunk);
     }
 
+    private void decodeQuantizationTables(int[] chunk){
+        int d = chunk[0];
+        int[] table = Arrays.copyOfRange(chunk, 1, 65);
+        quantizationTables.put(d, table);
+        int[] newChunk = Arrays.copyOfRange(chunk, 65, chunk.length);
+        if(newChunk.length > 0) decodeQuantizationTables(newChunk);
+    }
 
 }
