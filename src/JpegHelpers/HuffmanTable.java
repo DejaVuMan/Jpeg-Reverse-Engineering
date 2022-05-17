@@ -3,7 +3,7 @@ package JpegHelpers;
 import java.util.HashMap;
 
 public class HuffmanTable {
-    private final HashMap<Integer, int[]> lookupTable;
+    private final HashMap<Integer, int[]> lookup;
     private final Node root;
 
     private static class Node { // node in binary tree format
@@ -23,20 +23,21 @@ public class HuffmanTable {
         }
     }
 
-    HuffmanTable(HashMap<Integer, int[]> lookupTable){
-        this.lookupTable = lookupTable; // HM reference to code with corresponding symbols
+    HuffmanTable(HashMap<Integer, int[]> lookup){
+        this.lookup = lookup; // HM reference to code with corresponding symbols
 
         root = new Node(); // root node
         root.initChildNodes(); // initialize root's children
         Node farLeft = root.children[0];
         Node current;
 
-        for(int i = 0; i < lookupTable.size(); i++){
+        for(int i = 1; i <= lookup.size(); i++){
             if(getSymbolCount(i) == 0){
                 current = farLeft;
                 while(current != null){
                     current.initChildNodes();
-                    current = getRightNodeOf(current);
+                    current = getRightNodeOf(current); // gets stuck here?
+                    //System.out.println("current: " + current);
                 }
                 farLeft = farLeft.children[0];
             } else { // symbols to put into binary tree nodes
@@ -46,6 +47,8 @@ public class HuffmanTable {
                 }
                 farLeft.initChildNodes();
                 current = getRightNodeOf(farLeft);
+                farLeft = farLeft.children[0];
+
                 while(current != null){
                     current.initChildNodes();
                     current = getRightNodeOf(current);
@@ -55,18 +58,18 @@ public class HuffmanTable {
     }
 
     private int getSymbolCount(int code){
-        return lookupTable.get(code)[0];
+        return lookup.get(code).length;
     }
 
     private int[] getSymbols(int code){
-        return lookupTable.get(code);
+        return lookup.get(code);
     }
 
     private Node getRightNodeOf(Node node){
         if(node.parent.children[0] == node) return node.parent.children[1];
         int traversalCount = 0;
 
-        while(node.parent != null && node.parent.children[1] != node){
+        while(node.parent != null && node.parent.children[1] == node){
             node = node.parent;
             traversalCount++;
         }

@@ -20,7 +20,7 @@ public class BitStream {
             return -1;
         }
         currentByte = data[currentByteIndex];
-        bit = (currentByte >> (7 - (position & 8)) )& 1;
+        bit = (currentByte >> (7 - (position % 8))) & 1;
         position++;
         return bit;
     }
