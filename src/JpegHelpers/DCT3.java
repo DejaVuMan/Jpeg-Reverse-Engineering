@@ -52,7 +52,7 @@ public class DCT3 {
                         );
                     }
                 }
-                matrix[y][x] = (int) Math.floorDiv(s, 4);
+                matrix[y][x] = Math.floorDiv(s, 4);
             }
         }
         return matrix;

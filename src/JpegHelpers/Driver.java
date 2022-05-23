@@ -18,7 +18,15 @@ public class Driver {
 //            return;
 //        }
 
-        String filePath = "test.JPG";
+        String filePath = "asianchildmoment.jpg";
+        //Small_pict_test.JPG returns SMALLER resolution?
+        //SPACE.JPG returns same image resolution
+        //test.jpg returns same image resolution
+        //jpeg444.jpg returns same image resolution
+        //balloon.jpeg returns SMALLER image resolution
+        //asianchildmoment.jpg returns same image resolution
+
+        // might be something to do with encoding process of the JPGs, this is a "basic" decoder
 
         try{
             new JpegDecoder().decode(filePath); // args[0]

@@ -37,6 +37,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
     private int mcuHSF; // horizontal sample factor
     private int mcuVSF; // vertical sample factor
     private boolean color; // chroma components exist in jpeg
+    private boolean formatChecked = false;
 
     void decode(String image) throws IOException {
         int[] jpegImageData;
@@ -61,26 +62,30 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
         // Decoding
         main:
         for (int i = 0; i < jpegImageData.length; i++) {
-            System.out.println("Reached Element " + i + ". Value: " + jpegImageData[i]); // gets stuck on Value 255 After JPEG Sampling Factor ID? Element 1281
+            //System.out.println("Reached Element " + i + ". Value: " + jpegImageData[i]); // gets stuck on Value 255 After JPEG Sampling Factor ID? Element 1281
             if (jpegImageData[i] == 0xff) { // 0xff == 255
                 int marker = jpegImageData[i] << 8 | jpegImageData[i + 1];
                 switch (marker) { // marker value is 65476 AKA 0xFFC4
-                    case 0xffe0 -> System.out.println("This file is in JFIF format");
-                    case 0xffe1 -> System.out.println("This file is in EXIF format");
+                    case 0xffe0 -> System.out.println("This file is in JFIF format"); // 65504 = 0xffe0
+                    case 0xffe1 -> System.out.println("This file is in EXIF format"); // 65505 = 0xffe1 - both markers are contained to maintain compatibility between JFIF and EXIF
                     case 0xffc4 -> { // dht - 1281 enters here
+                        System.out.println("Found DHT");
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         decodeHuffmanTables(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length)); // put statement causes hang
                     }
                     case 0xffdb -> { // Quantization Table
+                        System.out.println("Found Quantization Table");
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         decodeQuantizationTables(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length));
                     }
                     case 0xffdd -> { // Define Restart Interval
+                        System.out.println("Found Restart Interval");
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         int[] arr = Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length);
                         restartInterval = Arrays.stream(arr).sum();
                     }
                     case 0xffc0 -> { // Start of Frame (Baseline)
+                        System.out.println("Found Start of Frame");
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         decodeStartOfFrame(Arrays.copyOfRange(jpegImageData, i + 4, i + 2 + length));
                         if (mode == -1) mode = 0;
@@ -89,6 +94,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
                         if (mode == -1) mode = 1;
                     }
                     case 0xffda -> { // Start of Scan
+                        System.out.println("Scan Start...");
                         int length = jpegImageData[i + 2] << 8 | jpegImageData[i + 3];
                         decodeStartOfScan(
                                 /*Arrays.copyOfRange(jpegImgData, i + 4, i + 2 + length),*/
@@ -143,8 +149,10 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
     private void decodeStartOfFrame(int[] chunk) {
         precision = chunk[0];
 
-        height = chunk[1] << 8 | chunk[2];
+        height = chunk[1] << 8 | chunk[2]; // EXIF format might force thumbnail mode
+        //height = 204;
         width = chunk[3] << 8 | chunk[4];
+        //width = 273;
         int noc = chunk[5]; // 1 grey-scale, 3 colour
         color = noc == 3;
 
@@ -164,7 +172,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
         }
     }
 
-    private void decodeStartOfScan(/*int[] chunk, */int[] imgData) {
+    private void decodeStartOfScan(int[] imgData) {
         if (mode != 0) {
             System.err.println("This decoder only supports baseline JPEG images.");
             return;
@@ -178,7 +186,14 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
         // check for and remove stuffing byte and restart markers
         for (int i = 0; i < imgDataList.size(); i++) {
             if (imgDataList.get(i).equals(0xff)) {
-                int nByte = imgDataList.get(i + 1);
+                int nByte;
+                try{
+                    nByte = imgDataList.get(i + 1);
+                } catch(IndexOutOfBoundsException e) {
+                    System.err.println("IndexOutofBoundsException! Trying to bypass by getting i instead of i+1 nbyte.");
+                    nByte = imgDataList.get(i);
+                }
+                //int nByte = imgDataList.get(i + 1);
                 if (nByte == 0x00) // stuffing byte
                     imgDataList.remove(i + 1);
                 if (nByte >= 0xd0 && nByte <= 0xd7) { // remove restart marker
@@ -205,6 +220,8 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
         int[][] yMatrix;
         int[][] cbMatrix = null;
         int[][] crMatrix = null;
+
+        System.out.println("Inverting DCT...");
 
         outer:
         for (int i = 0; i < (int) Math.ceil(height / (float) mcuHeight); i++) { // cast to float to avoid rounding errors
@@ -249,6 +266,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
             }
         }
         createDecodedBitMap(convertedMCUs);
+        System.out.println("Creating new decoded bit map");
     }
 
     private int[][] convertMCU(List<int[][]> yMatrices, int[][] cbMatrix, int[][] crMatrix) {
@@ -306,6 +324,10 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
                             img.setRGB((j * mcuWidth) + x, (i * mcuHeight) + y, rgbMCUs.get(blockCount)[y][x]);
                         } catch (ArrayIndexOutOfBoundsException ignored) {
                         } // extra part of partial mcu
+                        catch (IndexOutOfBoundsException e){
+                            System.err.println("Index out of bounds exception! " + e.getMessage());
+                            return;
+                        }
                     }
                 }
                 blockCount++;
@@ -367,9 +389,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
                 index++;
             }
         }
-
         inverseDCT.zigzagRearrange();
         return inverseDCT.dct3();
-
     }
 }

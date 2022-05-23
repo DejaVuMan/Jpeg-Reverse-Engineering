@@ -91,7 +91,12 @@ public class HuffmanTable {
             if(bit < 0) { // end of bit stream
                 return bit; // no more codes to read
             }
-            currentNode = currentNode.children[bit];
+            try{
+                currentNode = currentNode.children[bit];
+            } catch (NullPointerException e){
+                System.out.println("NullPointerException traversing Huffman Table tree! Trying to return old symbol...");
+                return currentNode.symbol;
+            }
         }
         return currentNode.symbol;
     }
