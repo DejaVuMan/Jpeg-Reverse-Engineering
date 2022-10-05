@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class Driver {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 //        if(args.length != 1){
 //            System.out.println("Usage: java jpegdecode <filename>");
 //            return;
@@ -18,7 +18,7 @@ public class Driver {
 //            return;
 //        }
 
-        String filePath = "asianchildmoment.jpg";
+        String filePath = "asianchildmoment.bmp"; // "asianchildmoment.jpg";
         // 2048x1536 -> 256 x 192 blocks -> Color Transform -> Apply DCT ->
         // Quantization (tables) -> Serialization (zig-zag)-> Vectoring(dpcm) -> Encoding (huffman)
         //Small_pict_test.JPG returns SMALLER resolution?
@@ -30,12 +30,22 @@ public class Driver {
 
         // might be something to do with encoding process of the JPGs, this is a "basic" decoder
 
-        try{
-            new JpegDecoder().decode(filePath); // args[0]
-        } catch(FileNotFoundException e){
+//        try {
+//            new JpegDecoder().decode(filePath); // args[0]
+//        } catch (FileNotFoundException e) {
+//            System.err.println("File not found! Make sure you're using a valid file.");
+//        } catch (IOException e) {
+//            System.err.println("An IO Exception occurred: " + e.getLocalizedMessage());
+//        }
+//    }
+//}
+
+        try {
+            new JpegEncoder().Encode(filePath);
+        } catch(FileNotFoundException e) {
             System.err.println("File not found! Make sure you're using a valid file.");
-        } catch(IOException e){
+        } catch(IOException e) {
             System.err.println("An IO Exception occurred: " + e.getLocalizedMessage());
         }
-    }
+        }
 }
