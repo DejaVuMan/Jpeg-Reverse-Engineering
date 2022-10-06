@@ -18,7 +18,7 @@ public class Driver {
 //            return;
 //        }
 
-        String filePath = "asianchildmoment.bmp"; // "asianchildmoment.jpg";
+        String filePath = "test_smiley.bmp"; // "asianchildmoment.jpg";
         // 2048x1536 -> 256 x 192 blocks -> Color Transform -> Apply DCT ->
         // Quantization (tables) -> Serialization (zig-zag)-> Vectoring(dpcm) -> Encoding (huffman)
         //Small_pict_test.JPG returns SMALLER resolution?

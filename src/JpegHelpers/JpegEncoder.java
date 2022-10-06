@@ -13,7 +13,8 @@ public class JpegEncoder {
     private Map<Integer, int[]> quantizationTables;
     private int width;
     private int height;
-    int Quality; // quality we want to encode JPEG into (0 to 100)
+    int quality; // quality we want to encode JPEG into (0 to 100)
+    int dataStartPoint;
 
 
     void Encode(String image) throws IOException{
@@ -28,8 +29,28 @@ public class JpegEncoder {
 
         System.out.println("BMP File Encoding: " + (char)byteArr[0] + (char)byteArr[1]);
 
+        // Bytes 3 to 6 tell us file size in little endian format
+        // If in hex editor we see: 36 0C 00 00, this is really 00 00 0C 36 -> 3126 -> 3126 Bytes -> 3.05KB
+        StringBuilder buffer = new StringBuilder(); // Hold our computation of hex
+        for(int i = 5; i > 1; i--){ // For Little Endian - LE is actually just a manga, "Right to Left"
+            buffer.append(Character.forDigit((byteArr[i] >> 4) & 0xF, 16));
+            buffer.append(Character.forDigit((byteArr[i] & 0xF), 16));
+        }
+        System.out.println("File Size in Bytes: " + Integer.parseInt(buffer.toString(), 16));
+
+        buffer.setLength(0); // Clear StringBuilder - can be faster than creating new StringBuilder()
+        for(int i = 13; i > 9; i--){ // This is for pixel array (bitmap data) is located
+            buffer.append(Character.forDigit((byteArr[i] >> 4) & 0xF, 16));
+            buffer.append(Character.forDigit((byteArr[i] & 0xF), 16));
+        }
+        dataStartPoint = Integer.parseInt(buffer.toString(), 16);
+        System.out.println("Bitmap Data starting byte: " + dataStartPoint);
+        // we should move the hex parsing part into its own function
+
+
+
         // byte 15 tells us size of DIB header
-        System.out.println("Header Size: " + byteArr[14]);
+        //System.out.println("Header Size: " + byteArr[14]);
 
         // Go to Color Palette at 2Eh (4 byte size)
         // Go to Color Importance at 32h (4 bytes)
