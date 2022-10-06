@@ -64,6 +64,8 @@ public class JpegEncoder {
         //Color Importance at 32h (4 bytes)
         System.out.println("Important colors: " + HexCalculator(53,4,byteArr));
 
+        System.out.println("Based on a width of " + width + ", there should be " + 32%4 + " bytes of padding");
+
         System.out.println("Preparing YCbCr Array to write to...");
         byte[] YCbCr = new byte[width*height*3];
 
