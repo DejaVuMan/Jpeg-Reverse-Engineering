@@ -27,7 +27,17 @@ public class JpegEncoder {
         // Following is DIB header, EBMs, Color Table, Gap1
         // Byte 70+ appears to be real img data
 
+
         System.out.println("BMP File Encoding: " + (char)byteArr[0] + (char)byteArr[1]);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append((char)byteArr[0]);
+        sb.append((char)byteArr[1]);
+
+        if(!sb.toString().equals("BM")){
+            System.out.println("Not a valid BMP file!");
+            return;
+        }
 
         // Bytes 3 to 6 tell us file size in little endian format
         // If in hex editor we see: 36 0C 00 00, this is really 00 00 0C 36 -> 3126 -> 3126 Bytes -> 3.05KB
@@ -53,7 +63,22 @@ public class JpegEncoder {
         //Color Importance at 32h (4 bytes)
         System.out.println("Important colors: " + HexCalculator(53,4,byteArr));
 
-        System.out.println("Starting Pixel Array...");
+        System.out.println("Preparing YCbCr Array to write to...");
+        byte[] YCbCr = new byte[width*height*3];
+
+        System.out.println("Converting RGB data to YCbCr...");
+        for(int i = dataStartPoint; i < byteArr.length;){
+                try{
+                    RGBToYCbCrConverter(byteArr[i], byteArr[i+1], byteArr[i+2], YCbCr, i);
+                    i+=3;
+                } catch(ArrayIndexOutOfBoundsException e){
+                    System.out.println("Array out of bounds! skipping...");
+                    break;
+                }
+            }
+        System.out.println("Completed RGB to YCbCr conversion.");
+
+        //System.out.println("Starting Pixel Array...");
         // Start of Pixel Array to encode into JPEG
 
         // Create empty img obj we will write to
@@ -74,6 +99,38 @@ public class JpegEncoder {
             buffer.append(Character.forDigit((toParse[i] & 0xF), 16));
         }
         return(Integer.parseInt(buffer.toString(), 16));
+    }
+
+    public void RGBToYCbCrConverter(byte r, byte g, byte b, byte[] yCbCrData, int position)
+    {
+        // color space conversion begin from 0 to 255 -> -128 to 128
+        int y = 16 + ((int) (65.738*r + 129.057*g + 25.064*b)) >> 8;
+        int cb = 128 + ((int) (-37.945*r - 74.494*g + 112.439*b)) >> 8;
+        int cr = 128 + ((int) (112.439*r - 94.154*g - 18.285*b)) >> 8;
+
+        if(y > 255) {
+            yCbCrData[position] = (byte)255;
+        } else if(y < 0) {
+            yCbCrData[position] = (byte)0;
+        } else {
+            yCbCrData[position] = (byte)y;
+        }
+
+        if(cb > 255) {
+            yCbCrData[1 + position] = (byte)255;
+        } else if(cb < 0) {
+            yCbCrData[1 + position] = (byte)0;
+        } else {
+            yCbCrData[1 + position] = (byte)cb;
+        }
+
+        if(cr > 255) {
+            yCbCrData[2 + position] = (byte)255;
+        } else if(cr < 0) {
+            yCbCrData[2 + position] = (byte)0;
+        } else {
+            yCbCrData[2 + position] = (byte)cr;
+        }
     }
 
     //public void Compress()
