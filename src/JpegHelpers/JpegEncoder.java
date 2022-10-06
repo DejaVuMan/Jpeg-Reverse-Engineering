@@ -31,30 +31,29 @@ public class JpegEncoder {
 
         // Bytes 3 to 6 tell us file size in little endian format
         // If in hex editor we see: 36 0C 00 00, this is really 00 00 0C 36 -> 3126 -> 3126 Bytes -> 3.05KB
-        StringBuilder buffer = new StringBuilder(); // Hold our computation of hex
-        for(int i = 5; i > 1; i--){ // For Little Endian - LE is actually just a manga, "Right to Left"
-            buffer.append(Character.forDigit((byteArr[i] >> 4) & 0xF, 16));
-            buffer.append(Character.forDigit((byteArr[i] & 0xF), 16));
-        }
-        System.out.println("File Size in Bytes: " + Integer.parseInt(buffer.toString(), 16));
 
-        buffer.setLength(0); // Clear StringBuilder - can be faster than creating new StringBuilder()
-        for(int i = 13; i > 9; i--){ // This is for pixel array (bitmap data) is located
-            buffer.append(Character.forDigit((byteArr[i] >> 4) & 0xF, 16));
-            buffer.append(Character.forDigit((byteArr[i] & 0xF), 16));
-        }
-        dataStartPoint = Integer.parseInt(buffer.toString(), 16);
+        System.out.println("File Size in Bytes: " + HexCalculator(5, 4, byteArr));
+
+        dataStartPoint = HexCalculator(13,4,byteArr);
         System.out.println("Bitmap Data starting byte: " + dataStartPoint);
-        // we should move the hex parsing part into its own function
 
+        // byte 15-18 tells us size of DIB header
+        System.out.println("DIB Header Size: " + HexCalculator(17,4,byteArr));
+        width = HexCalculator(21,4,byteArr); // Left to Right
+        System.out.println("Image Width: " + width); // Bottom to Top
+        height = HexCalculator(25,4,byteArr);
+        System.out.println("Image Height: " + height);
+        System.out.println("Color Plane count: " + HexCalculator(27,2,byteArr));
+        System.out.println("Bits per pixel: " + HexCalculator(29,2,byteArr));
+        System.out.println("Raw Bitmap data size in bytes with padding: " + HexCalculator(37,4,byteArr));
 
+        // Color Palette at 2Eh (4 bytes)
+        System.out.println("Colors in palette: " + HexCalculator(49,4,byteArr));
 
-        // byte 15 tells us size of DIB header
-        //System.out.println("Header Size: " + byteArr[14]);
+        //Color Importance at 32h (4 bytes)
+        System.out.println("Important colors: " + HexCalculator(53,4,byteArr));
 
-        // Go to Color Palette at 2Eh (4 byte size)
-        // Go to Color Importance at 32h (4 bytes)
-
+        System.out.println("Starting Pixel Array...");
         // Start of Pixel Array to encode into JPEG
 
         // Create empty img obj we will write to
@@ -65,6 +64,16 @@ public class JpegEncoder {
 
         // End Marker
         //byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
+    }
+
+    public int HexCalculator(int start, int length, byte[] toParse)
+    {
+        StringBuilder buffer = new StringBuilder(); // Hold our computation of hex
+        for(int i = start; i > start-length; i--){ // For Little Endian - LE is actually just a manga, "Right to Left"
+            buffer.append(Character.forDigit((toParse[i] >> 4) & 0xF, 16));
+            buffer.append(Character.forDigit((toParse[i] & 0xF), 16));
+        }
+        return(Integer.parseInt(buffer.toString(), 16));
     }
 
     //public void Compress()
