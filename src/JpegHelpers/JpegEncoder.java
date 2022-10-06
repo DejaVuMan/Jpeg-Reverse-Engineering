@@ -15,6 +15,7 @@ public class JpegEncoder {
     private int height;
     int quality; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
+    BufferedOutputStream outputStream;
 
 
     void Encode(String image) throws IOException{
@@ -78,17 +79,65 @@ public class JpegEncoder {
             }
         System.out.println("Completed RGB to YCbCr conversion.");
 
-        //System.out.println("Starting Pixel Array...");
-        // Start of Pixel Array to encode into JPEG
+        System.out.println("Creating Buffered output stream...");
+        outputStream = new BufferedOutputStream(new FileOutputStream("test.jpg"));
 
-        // Create empty img obj we will write to
-
-        // Write Header
+        // Write Header etc
 
         // do stuff and call on supporting funcs
 
         // End Marker
         //byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
+    }
+
+    public void WriteHeaders(BufferedOutputStream output)
+    {
+        int i, j, index, offset, length;
+        int[] tempArray;
+        //Start of Image Marker
+        byte[] startOfImage = { (byte)0xFF, (byte)0xD8 };
+        WriteMarker(startOfImage, output);
+
+        //JFIF Header
+        byte[] jfifHeader = { (byte)0xFF, (byte)0xE0, (byte)0x00, (byte)0x10, (byte)0x4A, (byte)0x46,
+                (byte)0x49, (byte)0x46, (byte)0x00, (byte)0x01, (byte)0x01, (byte)0x01,
+                (byte)0x00, (byte)0x60, (byte)0x00, (byte)0x60, (byte)0x00, (byte)0x00 };
+        WriteMarker(jfifHeader, output);
+
+        //Comment Header
+        String comment = "JPEG Encoding Test 2022";
+        byte[] commentHeader = new byte[comment.length() + 4];
+        commentHeader[0] = (byte)0xFF;
+        commentHeader[1] = (byte)0xFE;
+        commentHeader[2] = (byte)((comment.length() >> 8) & 0xFF); // accommodate very long comments
+        commentHeader[3] = (byte)(comment.length() & 0xFF);
+        System.arraycopy(comment.getBytes(), 0, commentHeader, 4, comment.length());
+        WriteArray(commentHeader, output);
+
+        //DQT Header
+
+        //Start of Frame Header
+
+        //DHT Header
+
+        //Start of Scan Header
+    }
+
+    void WriteMarker(byte[] marker, BufferedOutputStream output) {
+        try{
+            output.write(marker,0,2);
+        } catch(IOException e){
+            System.out.println("Error writing marker to output stream!");
+        }
+    }
+
+    void WriteArray(byte[] array, BufferedOutputStream output) {
+        try{
+            int length = ((array[2] & 0xFF) << 8) + (array[3] & 0xFF) + 2;
+            output.write(array,0,length);
+        } catch(IOException e){
+            System.out.println("Error writing array to output stream!");
+        }
     }
 
     public int HexCalculator(int start, int length, byte[] toParse)
