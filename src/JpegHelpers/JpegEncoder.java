@@ -119,6 +119,22 @@ public class JpegEncoder {
         WriteArray(commentHeader, output);
 
         //DQT Header
+        byte[] dqtHeader = new byte[134];
+        dqtHeader[0] = (byte)0xFF;
+        dqtHeader[1] = (byte)0xDB;
+        dqtHeader[2] = (byte)0x00;
+        dqtHeader[3] = (byte)0x84;
+        offset = 4; // account for first 4 bytes written in dqtheader array
+        for(i = 0; i < 2; i++)
+        {
+            dqtHeader[offset++] = (byte) i; //((0 << 4) + i)
+            //tempArray = (int[i]) dct.quantum[i]; // todo implement dct table here
+            for(j = 0; j < 64; j++)
+            {
+   // dqtHeader[offset++] = (byte)(jpegNaturalOrder[j]); implement array with nat. jpeg quantization order for 8x8 grid
+            }
+        }
+
 
         //Start of Frame Header
 
