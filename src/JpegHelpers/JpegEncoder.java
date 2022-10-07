@@ -13,7 +13,7 @@ public class JpegEncoder {
     private Map<Integer, int[]> quantizationTables;
     private int width;
     private int height;
-    int quality; // quality we want to encode JPEG into (0 to 100)
+    int quality = 100; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
     BufferedOutputStream outputStream;
 
@@ -134,9 +134,15 @@ public class JpegEncoder {
    // dqtHeader[offset++] = (byte)(jpegNaturalOrder[j]); implement array with nat. jpeg quantization order for 8x8 grid
             }
         }
-
+        WriteArray(dqtHeader, output);
 
         //Start of Frame Header
+        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)17, (byte)quality, // <- quality of img
+                (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
+                (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
+                (byte)3, (byte)0x01, (byte)0x11, (byte)0x00, (byte)0x02, (byte)0x11,
+                (byte)0x01, (byte)0x03, (byte)0x11, (byte)0x01 };
+        //TODO: Fix Frame Header, include composition IDs, sample factors, quant table ids
 
         //DHT Header
 
