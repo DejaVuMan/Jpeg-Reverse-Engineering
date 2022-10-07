@@ -82,6 +82,8 @@ public class JpegEncoder {
         System.out.println("Creating Buffered output stream...");
         outputStream = new BufferedOutputStream(new FileOutputStream("test.jpg"));
 
+        WriteHeaders(outputStream);
+
         // Write Header etc
 
         // do stuff and call on supporting funcs
@@ -121,6 +123,7 @@ public class JpegEncoder {
         //DHT Header
 
         //Start of Scan Header
+        //output.close();
     }
 
     void WriteMarker(byte[] marker, BufferedOutputStream output) {
