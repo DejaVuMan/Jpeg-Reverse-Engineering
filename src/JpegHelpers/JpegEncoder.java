@@ -9,18 +9,23 @@ import javax.imageio.ImageIO;
 
 public class JpegEncoder {
 
-    private Map<Integer, HuffmanTable> huffmanTables; // <ht header, ht> DC Y, CbCr : 0, 1 AC Y, CbCr : 16, 17
-    private Map<Integer, int[]> quantizationTables;
+//    private Map<Integer, HuffmanTable> huffmanTables; // <ht header, ht> DC Y, CbCr : 0, 1 AC Y, CbCr : 16, 17
+//    private Map<Integer, int[]> quantizationTables;
     private int width;
     private int height;
     int quality = 100; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
     BufferedOutputStream outputStream;
+    DCT dct = new DCT();
+
+    public static int[] jpegNaturalOrder = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
+            12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
+            29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62,
+            63, }; // Inline with JPEGQ class standard which uses natural order instead of zig-zag
 
     public int GetQuality(){
         return quality;
     }
-
 
     void Encode(String image) throws IOException{
         BufferedImage imageBuff = ImageIO.read(new File(image));
@@ -70,7 +75,7 @@ public class JpegEncoder {
         byteArr = null;
 
         System.out.println("Preparing YCbCr Array to write to...");
-        byte[][] YCbCr = new byte[width*3][height*3]; // First pixel would be values YCbCr[0,1,2], etc.
+        byte[][] YCbCr = new byte[height][width*3]; // First pixel would be values YCbCr[0,1,2], etc.
 
         boolean firstEntered = false;
         System.out.println("Converting RGB data to YCbCr...");
@@ -87,6 +92,9 @@ public class JpegEncoder {
 
         System.out.println("Creating Buffered output stream...");
         outputStream = new BufferedOutputStream(new FileOutputStream("test.jpg"));
+
+        System.out.println("Preparing DCT...");
+        dct.setQuality(quality);
 
         WriteHeaders(outputStream);
 
@@ -132,21 +140,21 @@ public class JpegEncoder {
         for(i = 0; i < 2; i++)
         {
             dqtHeader[offset++] = (byte) i; //((0 << 4) + i)
-            //tempArray = (int[i]) dct.quantum[i]; // todo implement dct table here
+            tempArray = (int[]) dct.quantizationValues[i];
             for(j = 0; j < 64; j++)
             {
-   // dqtHeader[offset++] = (byte)(jpegNaturalOrder[j]); implement array with nat. jpeg quantization order for 8x8 grid
+                dqtHeader[offset++] = (byte)(jpegNaturalOrder[j]); //implement array with nat. jpeg quantization order for 8x8 grid
             }
         }
         WriteArray(dqtHeader, output);
 
         //Start of Frame Header
-        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)17, (byte)quality, // <- quality of img
+        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)17, (byte)8, // <- precision of img
                 (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
                 (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
-                (byte)3, (byte)0x01, (byte)0x11, (byte)0x00, (byte)0x02, (byte)0x11,
-                (byte)0x01, (byte)0x03, (byte)0x11, (byte)0x01 };
-        //TODO: Fix Frame Header, include composition IDs, sample factors, quant table ids
+                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1};
+        //last 3 are Composition ID, H and V sampling factors, QT #
+        WriteArray(sofHeader, output);
 
         //DHT Header
 
