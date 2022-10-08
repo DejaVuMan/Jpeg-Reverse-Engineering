@@ -17,6 +17,10 @@ public class JpegEncoder {
     int dataStartPoint;
     BufferedOutputStream outputStream;
 
+    public int GetQuality(){
+        return quality;
+    }
+
 
     void Encode(String image) throws IOException{
         BufferedImage imageBuff = ImageIO.read(new File(image));
@@ -67,7 +71,7 @@ public class JpegEncoder {
         System.out.println("Based on a width of " + width + ", there should be " + 32%4 + " bytes of padding");
 
         System.out.println("Preparing YCbCr Array to write to...");
-        byte[] YCbCr = new byte[width*height*3];
+        byte[] YCbCr = new byte[width*height*3]; // First pixel would be values YCbCr[0,1,2], etc.
 
         System.out.println("Converting RGB data to YCbCr...");
         for(int i = dataStartPoint; i < byteArr.length;){
@@ -218,8 +222,4 @@ public class JpegEncoder {
     // tempArr, SOI marker, WriteMarker(), JFIF Header Data,
     // Comment Header, DQT Header, SoF Header, DHT Header SoS Header
     //}
-
-    //void WriteArray(byte[] data, OutPutStream outputStream)
-
-    //void WriteMarker(byte[] data, OutPutStream outputStream)
 }
