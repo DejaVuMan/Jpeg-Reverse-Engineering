@@ -106,8 +106,7 @@ public class JpegEncoder {
         //byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
     }
 
-    public void WriteHeaders(BufferedOutputStream output)
-    {
+    public void WriteHeaders(BufferedOutputStream output) {
         int i, j, index, offset, length;
         int[] tempArray;
         //Start of Image Marker
@@ -149,12 +148,13 @@ public class JpegEncoder {
         WriteArray(dqtHeader, output);
 
         //Start of Frame Header
-        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)17, (byte)8, // <- precision of img
+        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)11, (byte)8, // <- precision of img
                 (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
                 (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
-                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1};
+                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1 };
         //last 3 are Composition ID, H and V sampling factors, QT #
         WriteArray(sofHeader, output);
+        //output.close();
 
         //DHT Header
 
