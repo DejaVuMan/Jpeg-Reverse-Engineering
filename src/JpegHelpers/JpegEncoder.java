@@ -32,9 +32,7 @@ public class JpegEncoder {
         // Following is DIB header, EBMs, Color Table, Gap1
         // Byte 70+ appears to be real img data
 
-
         System.out.println("BMP File Encoding: " + (char)byteArr[0] + (char)byteArr[1]);
-
         StringBuilder sb = new StringBuilder();
         sb.append((char)byteArr[0]);
         sb.append((char)byteArr[1]);
@@ -64,25 +62,27 @@ public class JpegEncoder {
 
         // Color Palette at 2Eh (4 bytes)
         System.out.println("Colors in palette: " + HexCalculator(49,4,byteArr));
-
         //Color Importance at 32h (4 bytes)
         System.out.println("Important colors: " + HexCalculator(53,4,byteArr));
 
-        System.out.println("Based on a width of " + width + ", there should be " + 32%4 + " bytes of padding");
+        System.out.println("Based on a width of " + width + ", there should be " + width%4 + " bytes of padding");
+
+        byteArr = null;
 
         System.out.println("Preparing YCbCr Array to write to...");
-        byte[] YCbCr = new byte[width*height*3]; // First pixel would be values YCbCr[0,1,2], etc.
+        byte[][] YCbCr = new byte[width*3][height*3]; // First pixel would be values YCbCr[0,1,2], etc.
 
+        boolean firstEntered = false;
         System.out.println("Converting RGB data to YCbCr...");
-        for(int i = dataStartPoint; i < byteArr.length;){
-                try{
-                    RGBToYCbCrConverter(byteArr[i], byteArr[i+1], byteArr[i+2], YCbCr, i);
-                    i+=3;
-                } catch(ArrayIndexOutOfBoundsException e){
-                    System.out.println("Array out of bounds! skipping...");
-                    break;
-                }
+        for(int i = 0; i < height; i++){
+            int channelCounter = 0;
+            for(int j = 0; j < width; j++){
+                int colorData = imageBuff.getRGB(j, i);
+                //System.out.println("Red Color of pixel " + j + ", " + i + " is: " + ((colorData & 0x00ff0000) >> 16));
+                RGBToYCbCrConverter(YCbCr,channelCounter,i, colorData); // parse through image data top to bottom
+                channelCounter+=3;
             }
+        }
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
@@ -181,36 +181,37 @@ public class JpegEncoder {
         return(Integer.parseInt(buffer.toString(), 16));
     }
 
-    public void RGBToYCbCrConverter(byte r, byte g, byte b, byte[] yCbCrData, int position)
-    {
+    public void RGBToYCbCrConverter(byte[][] yCbCrData, int x, int yCord, int colorData)
+    { // use BufferedImage getRGB here
         // color space conversion begin from 0 to 255 -> -128 to 128
-        int y = 16 + ((int) (65.738*r + 129.057*g + 25.064*b)) >> 8;
-        int cb = 128 + ((int) (-37.945*r - 74.494*g + 112.439*b)) >> 8;
-        int cr = 128 + ((int) (112.439*r - 94.154*g - 18.285*b)) >> 8;
+        int y = 16 + ((int) (65.738*((colorData & 0xff0000) >> 16) + 129.057*((colorData & 0xff00) >> 8) + 25.064*(colorData & 0xff))) >> 8;
+        int cb = 128 + ((int) (-37.945*((colorData & 0xff0000) >> 16) - 74.494*((colorData & 0xff00) >> 8) + 112.439*(colorData & 0xff))) >> 8;
+        int cr = 128 + ((int) (112.439*((colorData & 0xff0000) >> 16) - 94.154*((colorData & 0xff00) >> 8) - 18.285*(colorData & 0xff))) >> 8;
 
         if(y > 255) {
-            yCbCrData[position] = (byte)255;
+            yCbCrData[yCord][x] = (byte)255; // row column order for arrays in java
         } else if(y < 0) {
-            yCbCrData[position] = (byte)0;
+            yCbCrData[yCord][x] = (byte)0;
         } else {
-            yCbCrData[position] = (byte)y;
+            yCbCrData[yCord][x] = (byte)y;
         }
 
         if(cb > 255) {
-            yCbCrData[1 + position] = (byte)255;
+            yCbCrData[yCord][1 + x] = (byte)255;
         } else if(cb < 0) {
-            yCbCrData[1 + position] = (byte)0;
+            yCbCrData[yCord][1 + x] = (byte)0;
         } else {
-            yCbCrData[1 + position] = (byte)cb;
+            yCbCrData[yCord][1 + x] = (byte)cb;
         }
 
         if(cr > 255) {
-            yCbCrData[2 + position] = (byte)255;
+            yCbCrData[yCord][2 + x] = (byte)255;
         } else if(cr < 0) {
-            yCbCrData[2 + position] = (byte)0;
+            yCbCrData[yCord][2 + x]= (byte)0;
         } else {
-            yCbCrData[2 + position] = (byte)cr;
+            yCbCrData[yCord][2 + x] = (byte)cr;
         }
+        System.out.println("parsed coordinates: " + x + " " + yCord);
     }
 
     //public void Compress()
