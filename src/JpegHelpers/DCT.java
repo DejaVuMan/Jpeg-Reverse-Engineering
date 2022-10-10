@@ -15,7 +15,7 @@ public class DCT {
     public int[] quantumChrominance; //= new int[blockSize * blockSize];
     public double[] divisorChrominance = new double[blockSize * blockSize];
 
-    public void setNumber(int num) {
+    public void setQuality(int num) {
         quality = num;
     }
 
@@ -31,12 +31,15 @@ public class DCT {
         double[] scaleFactor = {
                 1.0, 1.387039845, 1.306562965, 1.175875602, 1.0, 0.785694958, 0.541196100, 0.275899379
         };
-        int i; int j; int index; int temp;
+        int i;
+        int j;
+        int index;
+        int temp;
 
-        if(quality < 1){ // quality cannot be less than 1
+        if (quality < 1) { // quality cannot be less than 1
             quality = 1;
         }
-        if(quality > 100){
+        if (quality > 100) {
             quality = 100;
         }
 
@@ -62,8 +65,8 @@ public class DCT {
             quantumLuminance[j] = temp;
         }
         index = 0;
-        for(i = 0; i < blockSize; i++){
-            for(j = 0; j < blockSize; j++){
+        for (i = 0; i < blockSize; i++) {
+            for (j = 0; j < blockSize; j++) {
                 divisorLuminance[index] = 1.0 / (quantumLuminance[index] * scaleFactor[i] * scaleFactor[j] * 8.0);
                 index++;
             }
@@ -90,8 +93,8 @@ public class DCT {
             quantumChrominance[j] = temp;
         }
         index = 0;
-        for(i = 0; i < blockSize; i++){
-            for(j = 0; j < blockSize; j++){
+        for (i = 0; i < blockSize; i++) {
+            for (j = 0; j < blockSize; j++) {
                 divisorChrominance[index] = 1.0 / (quantumChrominance[index] * scaleFactor[i] * scaleFactor[j] * 8.0);
                 index++;
             }
@@ -102,6 +105,11 @@ public class DCT {
         quantizationValues[1] = quantumChrominance;
         divisorValues[0] = divisorLuminance;
         divisorValues[1] = divisorChrominance;
-
     }
+
+    // 1D array of all image data might not have been the smartest idea...
+//    public byte[] forwardDCT(byte[] inputData, int width, int height, int blockCount)
+//    {
+//
+//    }
 }
