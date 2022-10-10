@@ -129,7 +129,7 @@ public class JpegEncoder {
         System.arraycopy(comment.getBytes(), 0, commentHeader, 4, comment.length());
         WriteArray(commentHeader, output);
 
-        //DQT Header
+        //DQT Header - Quantization Table
         byte[] dqtHeader = new byte[134];
         dqtHeader[0] = (byte)0xFF;
         dqtHeader[1] = (byte)0xDB;
@@ -142,7 +142,8 @@ public class JpegEncoder {
             tempArray = (int[]) dct.quantizationValues[i];
             for(j = 0; j < 64; j++)
             {
-                dqtHeader[offset++] = (byte)(jpegNaturalOrder[j]); //implement array with nat. jpeg quantization order for 8x8 grid
+                dqtHeader[offset++] = (byte) tempArray[jpegNaturalOrder[j]];
+                //implement array with nat. jpeg quantization order for 8x8 grid
             }
         }
         WriteArray(dqtHeader, output);
@@ -156,7 +157,7 @@ public class JpegEncoder {
         WriteArray(sofHeader, output);
         //output.close();
 
-        //DHT Header
+        //DHT Header - Huffman Table
 
         //Start of Scan Header
         //output.close();
