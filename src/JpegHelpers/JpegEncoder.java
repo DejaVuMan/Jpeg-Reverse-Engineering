@@ -157,7 +157,26 @@ public class JpegEncoder {
         WriteArray(sofHeader, output);
         //output.close();
 
-        //DHT Header - Huffman Table
+        //DHT Header - Huffman Table (Inspired by James R. Weeks and BioElectroMech's work)
+        byte[] dht0;
+        byte[] dht1;
+        byte[] dht2;
+        byte[] dht3;
+        int bytes, temp, oldIndex, intermediateIndex;
+        index = 4; // account for first 4 bytes written in DQT Header array
+        oldIndex = 4;
+        dht0 = new byte[17];
+        dht3 = new byte[4];
+        dht3[0] = (byte)0xFF;
+        dht3[1] = (byte)0xC4;
+        for(i = 0; i < 4; i++)
+        {
+            bytes = 0;
+            dht0[index++ - oldIndex] = (byte) i; // ((int[]) HuffmanTable.bits.elementAt(i))[0];
+            for(j = 1; j < 17; j++)
+            {
+            }
+        }
 
         //Start of Scan Header
         //output.close();
