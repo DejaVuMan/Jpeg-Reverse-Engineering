@@ -24,7 +24,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
      */
 
     private String fileName;
-    private Map<Integer, HuffmanTable> huffmanTables; // <ht header, ht> DC Y, CbCr : 0, 1 AC Y, CbCr : 16, 17
+    private Map<Integer, HuffmanTableDecode> huffmanTables; // <ht header, ht> DC Y, CbCr : 0, 1 AC Y, CbCr : 16, 17
     private Map<Integer, int[]> quantizationTables;
 
     private int mode; // 0 for Baseline
@@ -132,7 +132,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
             }
             lookupTable.put(i + 1, symbolsOfLengthI);
         }
-        huffmanTables.put(cd, new HuffmanTable(lookupTable));
+        huffmanTables.put(cd, new HuffmanTableDecode(lookupTable));
 
         int[] newChunk = Arrays.copyOfRange(chunk, to, chunk.length);
         if (newChunk.length > 0) decodeHuffmanTables(newChunk);

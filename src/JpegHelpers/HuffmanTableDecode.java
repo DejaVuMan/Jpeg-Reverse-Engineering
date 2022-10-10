@@ -2,7 +2,7 @@ package JpegHelpers;
 
 import java.util.HashMap;
 
-public class HuffmanTable {
+public class HuffmanTableDecode {
     private final HashMap<Integer, int[]> lookup;
     private final Node root;
 
@@ -23,7 +23,7 @@ public class HuffmanTable {
         }
     }
 
-    HuffmanTable(HashMap<Integer, int[]> lookup){
+    HuffmanTableDecode(HashMap<Integer, int[]> lookup){
         this.lookup = lookup; // HM reference to code with corresponding symbols
 
         root = new Node(); // root node
