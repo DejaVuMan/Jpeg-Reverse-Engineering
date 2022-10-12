@@ -59,4 +59,21 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
             12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
             29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62,
             63, };
+
+    public HuffmanTableEncode(int width, int height){ // constructor
+        bits = new Vector();
+        bits.addElement(bitsDcLuminance); // unchecked call - probably shouldnt be done
+        bits.addElement(bitsAcLuminance);
+        bits.addElement(bitsDcChrominance);
+        bits.addElement(bitsAcChrominance);
+
+        val = new Vector();
+        val.addElement(valDcLuminance);
+        val.addElement(valAcLuminance);
+        val.addElement(valDcChrominance);
+        val.addElement(valAcChrominance);
+
+        // Initialize();
+
+    }
 }
