@@ -1,5 +1,6 @@
 package JpegHelpers;
 
+import java.io.BufferedOutputStream;
 import java.util.Vector;
 
 public class HuffmanTableEncode { // based on huffman table implementation from jpeg-6a
@@ -75,5 +76,35 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
 
         // Initialize();
 
+        imageHeight = height;
+        imageWidth = width;
+    }
+
+    public void BlockEncoder(BufferedOutputStream output, int[] zigzagTable, int precision, int dcCode, int acCode){
+        int temp0, temp1, bits, i, j, k;
+
+        dcTableCount = 2;
+        acTableCount = 2;
+
+        // DC
+        temp1 = zigzagTable[0] - precision;
+        temp0 = temp1;
+
+        if(temp0 < 0){
+            temp0 = -temp0;
+            temp1--;
+        }
+
+        bits = 0;
+        while(temp0 != 0){
+            bits++;
+            temp0 >>= 1; // >>= same as temp0 = temp0 >> 1
+        }
+
+        // buffer what we have done so far
+
+        // AC
+
+        // buffer again
     }
 }
