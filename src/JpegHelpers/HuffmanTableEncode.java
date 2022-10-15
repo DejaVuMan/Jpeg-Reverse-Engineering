@@ -82,7 +82,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         imageWidth = width;
     }
 
-    public void BlockEncoder(BufferedOutputStream output, int[] zigzagTable, int precision, int dcCode, int acCode) {
+    public void BlockEncoder(BufferedOutputStream output, int[] zigzagTable, int precision, int dcCode, int acCode){
         int temp0, temp1, bits, i, j, k;
 
         dcTableCount = 2;
@@ -139,7 +139,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         }
     }
 
-    void IntBuffer(BufferedOutputStream output, int code, int size) { // 32 bits used to write huffman bits to output
+    void IntBuffer(BufferedOutputStream output, int code, int size){ // 32 bits used to write huffman bits to output
         int putBuffer = code;
         int putBits = bufferPutBits;
 
@@ -148,26 +148,46 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         putBuffer <<= 24 - putBits;
         putBuffer |= bufferInsertionBuffer;
 
-        while(putBits > 7){
-            int c = (putBuffer >> 16) & 0xFF;
-            try {
-                output.write(c);
-            } catch (IOException e) {
-                e.getMessage();
-            }
-            if(c == 0xFF){
-                try {
-                    output.write(0);
-                } catch (IOException e) {
-                    e.getMessage();
-                }
-            }
-            putBuffer <<= 8;
-            putBits -= 8;
-        }
+        IOWriter(putBuffer, putBits, output);
         bufferInsertionBuffer = putBuffer;
         bufferPutBits = putBits;
     }
 
     //TODO: Flush Buffer clean up
+
+    void flushBuffer(BufferedOutputStream output){
+        int putBuffer = bufferInsertionBuffer;
+        int putBits = bufferPutBits;
+
+        IOWriter(putBuffer, putBits, output);
+        if(putBits > 0){
+            int c = (putBuffer >> 16) & 0xFF;
+            try {
+                output.write(c);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    void IOWriter(int putBuffer, int putBits, BufferedOutputStream output) {
+        while(putBits > 7){
+            int c = (putBuffer >> 16) & 0xFF;
+            try {
+                output.write(c);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+            if(c == 0xFF){
+                try {
+                    output.write(0);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+            putBuffer <<= 8;
+            putBits -= 8;
+        }
+    }
+
 }
