@@ -2,6 +2,7 @@ package JpegHelpers;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.nio.LongBuffer;
 import java.util.Vector;
 
 public class HuffmanTableEncode { // based on huffman table implementation from jpeg-6a
@@ -102,9 +103,12 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
             temp0 >>= 1; // >>= same as temp0 = temp0 >> 1
         }
 
-        // buffer what we have done so far
+        IntBuffer(output, ((int[][]) dcMatrix[dcCode])[bits][0], ((int[][]) dcMatrix[dcCode])[bits][1]);
+        if(bits != 0){
+            IntBuffer(output, temp1, bits);
+        }
 
-        // AC
+        // TODO: Remaining Elements, AC Portion
 
         // buffer again
     }
