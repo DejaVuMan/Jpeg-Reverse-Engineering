@@ -1,10 +1,11 @@
 package JpegHelpers;
 
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 public class HuffmanTableEncode { // based on huffman table implementation from jpeg-6a
-    int bufferBits, bufferInsertionBits;
+    int bufferPutBits, bufferInsertionBuffer;
     public int imageHeight, imageWidth;
 
     public int[][] dcMatrix0;
@@ -80,7 +81,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         imageWidth = width;
     }
 
-    public void BlockEncoder(BufferedOutputStream output, int[] zigzagTable, int precision, int dcCode, int acCode){
+    public void BlockEncoder(BufferedOutputStream output, int[] zigzagTable, int precision, int dcCode, int acCode) {
         int temp0, temp1, bits, i, j, k;
 
         dcTableCount = 2;
@@ -106,5 +107,35 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         // AC
 
         // buffer again
+    }
+
+    void IntBuffer(BufferedOutputStream output, int code, int size) { // 32 bits used to write huffman bits to output
+        int putBuffer = code;
+        int putBits = bufferPutBits;
+
+        putBuffer &= (1 << size) - 1; // &= same as putBuffer = putBuffer & ((1 << size) - 1)
+        putBits += size;
+        putBuffer <<= 24 - putBits;
+        putBuffer |= bufferInsertionBuffer;
+
+        while(putBits > 7){
+            int c = (putBuffer >> 16) & 0xFF;
+            try {
+                output.write(c);
+            } catch (IOException e) {
+                e.getMessage();
+            }
+            if(c == 0xFF){
+                try {
+                    output.write(0);
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+            }
+            putBuffer <<= 8;
+            putBits -= 8;
+        }
+        bufferInsertionBuffer = putBuffer;
+        bufferPutBits = putBits;
     }
 }
