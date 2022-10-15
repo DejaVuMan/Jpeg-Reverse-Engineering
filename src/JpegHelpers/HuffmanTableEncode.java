@@ -107,10 +107,36 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         if(bits != 0){
             IntBuffer(output, temp1, bits);
         }
-
-        // TODO: Remaining Elements, AC Portion
-
-        // buffer again
+        // AC
+        j = 0;
+        for(i = 1; i < 64; i++){ // Sequence is always 1 DC value followed by 63 AC values
+            temp0 = zigzagTable[jpegNaturalOrder[i]];
+            if(temp0 == 0)
+            {
+                j++;
+            } else {
+                while(j > 15){
+                    IntBuffer(output, ((int[][]) acMatrix[acCode])[0xF0][0], ((int[][]) acMatrix[acCode])[0xF0][1]);
+                    j -= 16;
+                }
+                temp1 = temp0;
+                if(temp0 < 0){
+                    temp0 = -temp0;
+                    temp1--;
+                }
+                bits = 1;
+                while((temp0 >>= 1) != 0){
+                    bits++;
+                }
+                k = (j << 4) + bits;
+                IntBuffer(output, ((int[][]) acMatrix[acCode])[k][0], ((int[][]) acMatrix[acCode])[k][1]);
+                IntBuffer(output, temp1, bits);
+                j = 0;
+            }
+        }
+        if(j > 0){
+            IntBuffer(output, ((int[][]) acMatrix[acCode])[0][0], ((int[][]) acMatrix[acCode])[0][1]);
+        }
     }
 
     void IntBuffer(BufferedOutputStream output, int code, int size) { // 32 bits used to write huffman bits to output
@@ -142,4 +168,6 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         bufferInsertionBuffer = putBuffer;
         bufferPutBits = putBits;
     }
+
+    //TODO: Flush Buffer clean up
 }
