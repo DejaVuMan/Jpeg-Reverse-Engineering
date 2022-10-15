@@ -190,4 +190,13 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         }
     }
 
+    public void InitializeHuffmanEncoder(){
+        dcMatrix0 = new int[12][2];
+        dcMatrix1 = new int[12][2];
+        acMatrix0 = new int[255][2];
+        acMatrix1 = new int[255][2];
+        dcMatrix = new Object[2];
+        acMatrix = new Object[2];
+    }
+
 }
