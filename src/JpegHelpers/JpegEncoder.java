@@ -79,12 +79,12 @@ public class JpegEncoder {
         boolean firstEntered = false;
         System.out.println("Converting RGB data to YCbCr...");
         for(int i = 0; i < height; i++){
-            int channelCounter = 0;
+            int byteDataOffset = 0;
             for(int j = 0; j < width; j++){
                 int colorData = imageBuff.getRGB(j, i);
                 //System.out.println("Red Color of pixel " + j + ", " + i + " is: " + ((colorData & 0x00ff0000) >> 16));
-                RGBToYCbCrConverter(YCbCr,channelCounter,i, colorData); // parse through image data top to bottom
-                channelCounter+=3;
+                RGBToYCbCrConverter(YCbCr,byteDataOffset,i, colorData); // parse through image data top to bottom
+                byteDataOffset+=3;
             }
         }
         System.out.println("Completed RGB to YCbCr conversion.");
@@ -283,13 +283,15 @@ public class JpegEncoder {
         System.out.println("parsed coordinates: " + x + " " + yCord);
     }
 
-    //public void Compress()
+    public void WriteCompressedData(BufferedOutputStream output)
+    {
+        int i, j, k, l, m, n;
 
-    //public void WriteCompressedData(OutPutStream outputStream)
+        int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
-    //public void WriteHeaders(OutPutStream outputStream)
-    //{
-    // tempArr, SOI marker, WriteMarker(), JFIF Header Data,
-    // Comment Header, DQT Header, SoF Header, DHT Header SoS Header
-    //}
+        byte[][] yChannel = new byte[height][width];
+
+
+    }
+
 }
