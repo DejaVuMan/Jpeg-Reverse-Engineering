@@ -107,9 +107,105 @@ public class DCT {
         divisorValues[1] = divisorChrominance;
     }
 
-    // 1D array of all image data might not have been the smartest idea...
-//    public byte[] forwardDCT(byte[] inputData, int width, int height, int blockCount)
-//    {
-//
-//    }
+    public double[][] ForwardDCT(byte[][] input) //TODO: figure out if byte over double memory savings are worth it here
+    {
+        double[][] output = new double[blockSize][blockSize];
+        double temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp10, temp11, temp12, temp13;
+        double z1, z2, z3, z4, z5, z11, z13; // if these were byte, we would lose a ton of precision
+        int i, j;
+
+        // subtract 128 from input values to get close to smaller values across the board for compression purposes
+        for (i = 0; i < blockSize; i++)
+        {
+            for (j = 0; j < blockSize; j++)
+            {
+                output[i][j] = (input[i][j] - 128);
+            }
+        }
+
+        for(i = 0; i < blockSize; i++)
+        {
+            // explicit typecasting here -> on operations, everything is promoted to at least an int before computation
+            // See JLS 5.6.2 - Binary Numeric Promotion -> Typecasting back to byte is easiest way to avoid comp errors
+            temp0 = (output[i][0] + output[i][7]);
+            temp7 = (output[i][0] - output[i][7]);
+            temp1 = (output[i][1] + output[i][6]);
+            temp6 = (output[i][1] - output[i][6]);
+            temp2 = (output[i][2] + output[i][5]);
+            temp5 = (output[i][2] - output[i][5]);
+            temp3 = (output[i][3] + output[i][4]);
+            temp4 = (output[i][3] - output[i][4]);
+
+            temp10 = (temp0 + temp3);
+            temp13 = (temp0 - temp3);
+            temp11 = (temp1 + temp2);
+            temp12 = (temp1 - temp2);
+
+            output[i][0] = (temp10 + temp11);
+            output[i][4] = (temp10 - temp11);
+
+            z1 = ((temp12 + temp13) * 0.707106781);
+            output[i][2] = temp13 + z1;
+            output[i][6] = temp13 - z1;
+
+            temp10 = (temp4 + temp5);
+            temp11 = (temp5 + temp6);
+            temp12 = (temp6 + temp7);
+
+            z5 = (temp10 - temp12) * 0.382683433;
+            z2 = 0.541196100 * temp10 + z5;
+            z4 = 1.306562965 * temp12 + z5;
+            z3 = temp11 * 0.707106781;
+
+            z11 = temp7 + z3;
+            z13 = temp7 - z3;
+
+            output[i][5] = z13 + z2;
+            output[i][3] = z13 - z2;
+            output[i][1] = z11 + z4;
+            output[i][7] = z11 - z4;
+        }
+
+        for(i = 0; i < blockSize; i++)
+        {
+            temp0 = (output[0][i] + output[7][i]);
+            temp7 = (output[0][i] - output[7][i]);
+            temp1 = (output[1][i] + output[6][i]);
+            temp6 = (output[1][i] - output[6][i]);
+            temp2 = (output[2][i] + output[5][i]);
+            temp5 = (output[2][i] - output[5][i]);
+            temp3 = (output[3][i] + output[4][i]);
+            temp4 = (output[3][i] - output[4][i]);
+
+            temp10 = (temp0 + temp3);
+            temp13 = (temp0 - temp3);
+            temp11 = (temp1 + temp2);
+            temp12 = (temp1 - temp2);
+
+            output[0][i] = (temp10 + temp11);
+            output[4][i] = (temp10 - temp11);
+
+            z1 = (temp12 + temp13) * 0.707106781;
+            output[2][i] = temp13 + z1;
+            output[6][i] = temp13 - z1;
+
+            temp10 = (temp4 + temp5);
+            temp11 = (temp5 + temp6);
+            temp12 = (temp6 + temp7);
+
+            z5 = (temp10 - temp12) * 0.382683433;
+            z2 = 0.541196100 * temp10 + z5;
+            z4 = 1.306562965 * temp12 + z5;
+            z3 = temp11 * 0.707106781;
+
+            z11 = temp7 + z3;
+            z13 = temp7 - z3;
+
+            output[5][i] = z13 + z2;
+            output[3][i] = z13 - z2;
+            output[1][i] = z11 + z4;
+            output[7][i] = z11 - z4;
+        }
+        return output; // TODO: Check if this can be optimized and simplified
+    }
 }
