@@ -260,5 +260,65 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
             acMatrix1[valAcChrominance[position]][1] = huffmanSize[position];
         }
 
+        // Init of DC Values for luminance
+
+        position = 0;
+        for(l = 0; l < 16; l++){
+            for(i = 0; i < bitsDcLuminance[l+1]; i++){
+                huffmanSize[position++] = l+1;
+            }
+        }
+        huffmanSize[position] = 0;
+        lastPosition = position;
+
+        code = 0;
+        si = huffmanSize[0];
+        position = 0;
+        while(huffmanSize[position] != 0){
+            while(huffmanSize[position] == si){
+                huffmanCode[position++] = code;
+                code++;
+            }
+            code <<= 1;
+            si++;
+        }
+
+        for(position = 0; position < lastPosition; position++){
+            dcMatrix0[valDcLuminance[position]][0] = huffmanCode[position];
+            dcMatrix0[valDcLuminance[position]][1] = huffmanSize[position];
+        }
+
+        // Init of AC Values for luminance
+
+        position = 0;
+        for(l = 0; l < 16; l++){
+            for(i = 0; i < bitsAcLuminance[l+1]; i++){
+                huffmanSize[position++] = l+1;
+            }
+        }
+        huffmanSize[position] = 0;
+        lastPosition = position;
+
+        code = 0;
+        si = huffmanSize[0];
+        position = 0;
+        while(huffmanSize[position] != 0){
+            while(huffmanSize[position] == si){
+                huffmanCode[position++] = code;
+                code++;
+            }
+            code <<= 1;
+            si++;
+        }
+
+        for(int q = 0; q < lastPosition; q++){
+            acMatrix0[valAcLuminance[q]][0] = huffmanCode[q];
+            acMatrix0[valAcLuminance[q]][1] = huffmanSize[q];
+        }
+
+        dcMatrix[0] = dcMatrix0;
+        dcMatrix[1] = dcMatrix1;
+        acMatrix[0] = acMatrix0;
+        acMatrix[1] = acMatrix1;
     }
 }
