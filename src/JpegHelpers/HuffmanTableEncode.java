@@ -207,8 +207,8 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
 
         position = 0;
         for(l = 0; l < 16; l++){
-            for(i = 0; i < bitsDcChrominance[l]; i++){
-                huffmanSize[position++] = l;
+            for(i = 0; i < bitsDcChrominance[l+1]; i++){
+                huffmanSize[position++] = l+1;
             }
         }
         huffmanSize[position] = 0;
@@ -233,6 +233,32 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
 
         // like above, AC values for chrominance are
         // [][0] for the code itself and [][1] for the number of the bit
+
+        position = 0;
+        for(l = 0; l < 16; l++){
+            for(i = 0; i < bitsAcChrominance[l+1]; i++){
+                huffmanSize[position++] = l+1;
+            }
+        }
+        huffmanSize[position] = 0;
+        lastPosition = position;
+
+        code = 0;
+        si = huffmanSize[0];
+        position = 0;
+        while(huffmanSize[position] != 0){
+            while(huffmanSize[position] == si){
+                huffmanCode[position++] = code;
+                code++;
+            }
+            code <<= 1;
+            si++;
+        }
+
+        for(position = 0; position < lastPosition; position++){
+            acMatrix1[valAcChrominance[position]][0] = huffmanCode[position];
+            acMatrix1[valAcChrominance[position]][1] = huffmanSize[position];
+        }
 
     }
 }
