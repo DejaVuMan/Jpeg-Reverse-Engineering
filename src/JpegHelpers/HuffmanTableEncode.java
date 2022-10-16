@@ -197,6 +197,42 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         acMatrix1 = new int[255][2];
         dcMatrix = new Object[2];
         acMatrix = new Object[2];
-    }
 
+        int position, l, i, lastPosition, si, code;
+        int[] huffmanSize = new int[257];
+        int[] huffmanCode = new int[257];
+
+        // As described in the work done by James R. Weeks and BioElectroMech, DC values for chrominance are
+        // [][0] for the code itself and [][1] for the number of the bit
+
+        position = 0;
+        for(l = 0; l < 16; l++){
+            for(i = 0; i < bitsDcChrominance[l]; i++){
+                huffmanSize[position++] = l;
+            }
+        }
+        huffmanSize[position] = 0;
+        lastPosition = position;
+
+        code = 0;
+        si = huffmanSize[0];
+        position = 0;
+        while(huffmanSize[position] != 0){
+            while(huffmanSize[position] == si){
+                huffmanCode[position++] = code;
+                code++;
+            }
+            code <<= 1;
+            si++;
+        }
+
+        for(position = 0; position < lastPosition; position++){
+            dcMatrix1[valDcChrominance[position]][0] = huffmanCode[position];
+            dcMatrix1[valDcChrominance[position]][1] = huffmanSize[position];
+        }
+
+        // like above, AC values for chrominance are
+        // [][0] for the code itself and [][1] for the number of the bit
+
+    }
 }
