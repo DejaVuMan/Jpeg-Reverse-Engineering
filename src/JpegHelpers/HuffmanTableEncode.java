@@ -76,7 +76,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         val.addElement(valDcChrominance);
         val.addElement(valAcChrominance);
 
-        // Initialize();
+        InitializeHuffmanEncoder();
 
         imageHeight = height;
         imageWidth = width;

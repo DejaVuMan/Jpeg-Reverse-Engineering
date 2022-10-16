@@ -9,8 +9,7 @@ import javax.imageio.ImageIO;
 
 public class JpegEncoder {
 
-//    private Map<Integer, HuffmanTable> huffmanTables; // <ht header, ht> DC Y, CbCr : 0, 1 AC Y, CbCr : 16, 17
-//    private Map<Integer, int[]> quantizationTables;
+    HuffmanTableEncode huf;
     private int width;
     private int height;
     int quality = 100; // quality we want to encode JPEG into (0 to 100)
@@ -155,7 +154,6 @@ public class JpegEncoder {
                 (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1 };
         //last 3 are Composition ID, H and V sampling factors, QT #
         WriteArray(sofHeader, output);
-        //output.close();
 
         //DHT Header - Huffman Table (Inspired by James R. Weeks and BioElectroMech's work)
         byte[] dht0;
@@ -172,11 +170,30 @@ public class JpegEncoder {
         for(i = 0; i < 4; i++)
         {
             bytes = 0;
-            dht0[index++ - oldIndex] = (byte) i; // ((int[]) HuffmanTable.bits.elementAt(i))[0];
+            dht0[index++ - oldIndex] = (byte) ((int[]) huf.bits.elementAt(i))[0];
             for(j = 1; j < 17; j++)
             {
+                temp = ((int[]) huf.bits.elementAt(i))[j];
+                dht0[index++ - oldIndex] = (byte) temp;
+                bytes += temp;
             }
+
+            intermediateIndex = index;
+            dht1 = new byte[bytes];
+            for(j = 0; j < bytes; j++)
+            {
+                dht1[index++ - intermediateIndex] = (byte) ((int[]) huf.val.elementAt(i))[j];
+            }
+
+            dht2 = new byte[index];
+            java.lang.System.arraycopy(dht3, 0, dht2, 0, oldIndex);
+            java.lang.System.arraycopy(dht0, 0, dht2, oldIndex, 17);
+            java.lang.System.arraycopy(dht1, 0, dht2, oldIndex + 17, bytes);
+            dht3 = dht2;
+            oldIndex = index;
         }
+        dht3[2] = (byte)(((index - 2) >> 8) & 0xFF);
+        dht3[3] = (byte)((index - 2) & 0xFF);
 
         //Start of Scan Header
         //output.close();
