@@ -196,7 +196,25 @@ public class JpegEncoder {
         dht3[3] = (byte)((index - 2) & 0xFF);
 
         //Start of Scan Header
-        //output.close();
+        byte[] sos = new byte[14];
+        sos[0] = (byte)0xFF;
+        sos[1] = (byte)0xDA;
+        sos[2] = (byte)0x00;
+        sos[3] = (byte)12;
+        sos[4] = (byte)3; // number of components in img
+
+        sos[5] = (byte)1; // ID of component
+        sos[6] = 0; // dc, ac ids -> 0,1,1
+        sos[7] = (byte)2; // ID of component
+        sos[8] = (byte)((1 << 4) + 1);
+        sos[9] = (byte)3; // ID of component
+        sos[10] = (byte)((1 << 4) + 1);
+
+        sos[11] = (byte)0; // Ss
+        sos[12] = (byte)63; // Se
+        //ah, al, 0, 0
+        sos[13] = (byte)(0);
+        WriteArray(sos, output);
     }
 
     void WriteMarker(byte[] marker, BufferedOutputStream output) {
