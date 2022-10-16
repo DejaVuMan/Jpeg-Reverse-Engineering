@@ -21,7 +21,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
     public int dcTableCount;
     public int acTableCount;
 
-    public int[] bitsDcLuminance = {0x00, 0, 1, 5, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
+    public int[] bitsDcLuminance = {0x00, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
     public int[] valDcLuminance = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
     public int[] bitsDcChrominance = {0x01, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
@@ -263,9 +263,9 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         // Init of DC Values for luminance
 
         position = 0;
-        for(l = 0; l < 16; l++){
-            for(i = 0; i < bitsDcLuminance[l+1]; i++){
-                huffmanSize[position++] = l+1;
+        for(l = 1; l <= 16; l++){
+            for(i = 1; i <= bitsDcLuminance[l]; i++){
+                huffmanSize[position++] = l;
             }
         }
         huffmanSize[position] = 0;

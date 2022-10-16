@@ -94,15 +94,20 @@ public class JpegEncoder {
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
+        System.out.println("Initializing Huffman Table...");
+        huf = new HuffmanTableEncode(width, height);
 
         WriteHeaders(outputStream);
-
-        // Write Header etc
-
-        // do stuff and call on supporting funcs
-
+        // Write Compressed data method
         // End Marker
-        //byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
+        byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
+        outputStream.write(endOfImage);
+        try{
+            outputStream.flush();
+        } catch (IOException e){
+            System.out.println("Error flushing output stream");
+            System.out.println(e.getMessage());
+        }
     }
 
     public void WriteHeaders(BufferedOutputStream output) {
@@ -194,6 +199,7 @@ public class JpegEncoder {
         }
         dht3[2] = (byte)(((index - 2) >> 8) & 0xFF);
         dht3[3] = (byte)((index - 2) & 0xFF);
+        WriteArray(dht3, output);
 
         //Start of Scan Header
         byte[] sos = new byte[14];
