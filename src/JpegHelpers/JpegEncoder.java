@@ -283,14 +283,40 @@ public class JpegEncoder {
         System.out.println("parsed coordinates: " + x + " " + yCord);
     }
 
-    public void WriteCompressedData(BufferedOutputStream output)
+    public void WriteCompressedData(BufferedOutputStream output, byte[][] yCbCrData)
     {
         int i, j, k, l, m, n;
 
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
         byte[][] yChannel = new byte[height][width];
+        byte[][] cbChannel = new byte[height][width];
+        byte[][] crChannel = new byte[height][width];
 
+        for(i = 0; i < height; i++){ // put into separate channels for easier calculation during write time
+            int threeChannelPosition = 0;
+            for(j = 0; j < width; j++){
+                yChannel[i][j] = yCbCrData[i][threeChannelPosition++]; // pos 0...3...6
+                cbChannel[i][j] = yCbCrData[i][threeChannelPosition++]; // pos 1...4...7
+                crChannel[i][j] = yCbCrData[i][threeChannelPosition++]; // pos 2...5...8
+            }
+        }
+
+        float[][] dctArray0 = new float[8][8];
+        double[][] dctArray1 = new double[8][8];
+        int[] dctArray3 = new int[8*8];
+
+        // start at upper left of image and work our way down in 8x8 chunks
+
+        int[] lastDCValue = new int[3]; // number of components
+        int minBlockWidth, minBlockHeight;
+        minBlockWidth = ((width % 8 != 0) ? (int)(Math.floor(width / 8.0) + 1) * 8 : width);
+        minBlockHeight = ((height % 8 != 0) ? (int)(Math.floor(height / 8.0) + 1) * 8 : height);
+
+//        for(comp = 0; comp < 3; comp++)
+//        {
+//            minBlockWidth = Math.min(minBlockWidth, compInfo[comp].widthInBlocks * 8);
+//        }
 
     }
 
