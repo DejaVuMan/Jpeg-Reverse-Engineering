@@ -208,4 +208,20 @@ public class DCT {
         }
         return output; // TODO: Check if this can be optimized and simplified
     }
+
+    public int[] QuantizeBlock(double[][] inputData, int code)
+    {
+        int[] output = new int[blockSize * blockSize];
+        int i, j, index;
+        index = 0;
+        for (i = 0; i < blockSize; i++)
+        {
+            for (j = 0; j < blockSize; j++)
+            {
+                output[index] = (int)(Math.round(inputData[i][j] / (((int[]) (quantizationValues[code]))[index])));
+                index++;
+            }
+        }
+        return output;
+    }
 }
