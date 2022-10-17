@@ -18,7 +18,8 @@ public class Driver {
 //            return;
 //        }
 
-        String filePath = "bmp_24.bmp"; // "asianchildmoment.jpg";
+        String filePath = "bmp_400.bmp"; // "asianchildmoment.jpg";
+        String filePath2 = "bmp_400_j.jpg";
         // 2048x1536 -> 256 x 192 blocks -> Color Transform -> Apply DCT ->
         // Quantization (tables) -> Serialization (zig-zag)-> Vectoring(dpcm) -> Encoding (huffman)
         //Small_pict_test.JPG returns SMALLER resolution?
@@ -42,6 +43,8 @@ public class Driver {
 
         try {
             new JpegEncoder().Encode(filePath);
+            // Despite encoding the BMP to JPG incorrectly, attempting to decode it back has same file size, resolution
+            //new JpegDecoder().decode(filePath2);
         } catch(FileNotFoundException e) {
             System.err.println("File not found! Make sure you're using a valid file.");
         } catch(IOException e) {

@@ -204,9 +204,9 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         // [][0] for the code itself and [][1] for the number of the bit
 
         position = 0;
-        for(l = 0; l < 16; l++){
-            for(i = 0; i < bitsDcChrominance[l+1]; i++){
-                huffmanSize[position++] = l+1;
+        for(l = 1; l <= 16; l++){
+            for(i = 1; i <= bitsDcChrominance[l]; i++){
+                huffmanSize[position++] = l;
             }
         }
         huffmanSize[position] = 0;
@@ -233,9 +233,9 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         // [][0] for the code itself and [][1] for the number of the bit
 
         position = 0;
-        for(l = 0; l < 16; l++){
-            for(i = 0; i < bitsAcChrominance[l+1]; i++){
-                huffmanSize[position++] = l+1;
+        for(l = 1; l <= 16; l++){
+            for(i = 1; i <= bitsAcChrominance[l]; i++){
+                huffmanSize[position++] = l;
             }
         }
         huffmanSize[position] = 0;
@@ -289,9 +289,9 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         // Init of AC Values for luminance
 
         position = 0;
-        for(l = 0; l < 16; l++){
-            for(i = 0; i < bitsAcLuminance[l+1]; i++){
-                huffmanSize[position++] = l+1;
+        for(l = 1; l <= 16; l++){
+            for(i = 1; i <= bitsAcLuminance[l]; i++){
+                huffmanSize[position++] = l;
             }
         }
         huffmanSize[position] = 0;

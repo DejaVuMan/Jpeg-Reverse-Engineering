@@ -12,7 +12,7 @@ public class JpegEncoder {
     HuffmanTableEncode huf;
     private int width;
     private int height;
-    int quality = 100; // quality we want to encode JPEG into (0 to 100)
+    int quality = 80; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
     BufferedOutputStream outputStream;
     DCT dct = new DCT();
@@ -88,7 +88,7 @@ public class JpegEncoder {
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
-        outputStream = new BufferedOutputStream(new FileOutputStream("test_2.jpg"));
+        outputStream = new BufferedOutputStream(new FileOutputStream("bmp_400_j.jpg"));
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
@@ -99,7 +99,7 @@ public class JpegEncoder {
         WriteCompressedData(outputStream, YCbCr);
         // End Marker
         byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
-        outputStream.write(endOfImage);
+        WriteMarker(endOfImage, outputStream);
         try{
             outputStream.flush();
         } catch (IOException e){
@@ -140,7 +140,7 @@ public class JpegEncoder {
         offset = 4; // account for first 4 bytes written in dqtheader array
         for(i = 0; i < 2; i++)
         {
-            dqtHeader[offset++] = (byte) i; //((0 << 4) + i)
+            dqtHeader[offset++] = (byte)((0 << 4) + i);
             tempArray = (int[]) dct.quantizationValues[i];
             for(j = 0; j < 64; j++)
             {
@@ -151,10 +151,32 @@ public class JpegEncoder {
         WriteArray(dqtHeader, output);
 
         //Start of Frame Header
-        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)11, (byte)8, // <- precision of img
-                (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
-                (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
-                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1 };
+//        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)11, (byte)8, // <- precision of img
+//                (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
+//                (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
+//                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1 };
+        byte[] sofHeader = new byte[19];
+        sofHeader[0] = (byte)0xFF;
+        sofHeader[1] = (byte)0xC0;
+        sofHeader[2] = (byte)0x00;
+        sofHeader[3] = (byte)17;
+        sofHeader[4] = (byte)8; // precision
+        sofHeader[5] = (byte)((height >> 8) & 0xFF);
+        sofHeader[6] = (byte)(height & 0xFF);
+        sofHeader[7] = (byte)((width >> 8) & 0xFF);
+        sofHeader[8] = (byte)(width & 0xFF);
+        sofHeader[9] = (byte)3; // number of components
+
+        sofHeader[10] = (byte)1; // component ID
+        sofHeader[11] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[12] = (byte)0; // quantization table number
+        sofHeader[13] = (byte)2; // component ID
+        sofHeader[14] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[15] = (byte)1; // quantization table number
+        sofHeader[16] = (byte)3; // component ID
+        sofHeader[17] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[18] = (byte)1; // quantization table number
+
         //last 3 are Composition ID, H and V sampling factors, QT #
         WriteArray(sofHeader, output);
 
@@ -318,11 +340,11 @@ public class JpegEncoder {
                 {
                     if(comp == 0)
                     {
-                        currentArray = yChannel;
+                        currentArray = (float[][]) yChannel;
                     } else if(comp == 1) {
-                        currentArray = cbChannel;
+                        currentArray = (float[][]) cbChannel;
                     } else {
-                        currentArray = crChannel;
+                        currentArray = (float[][]) crChannel;
                     }
 
                     for(i = 0; i < 1; i++) // VSamp
@@ -335,7 +357,6 @@ public class JpegEncoder {
                             {
                                 for(n = 0; n < 8; n++)
                                 {
-                                    //System.out.println("ypos: " + yPos + ", xpos: " + xPos + ", yBlockOffset: " + yBlockOffset + ", xBlockOffset: " + xBlockOffset + ", m: " + m + ", n: " + n);
                                     dctArray0[m][n] = currentArray[yPos + yBlockOffset + m][xPos + xBlockOffset + n];
                                 }
                             }
