@@ -153,9 +153,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         bufferPutBits = putBits;
     }
 
-    //TODO: Flush Buffer clean up
-
-    void flushBuffer(BufferedOutputStream output){
+    void FlushBuffer(BufferedOutputStream output){
         int putBuffer = bufferInsertionBuffer;
         int putBits = bufferPutBits;
 

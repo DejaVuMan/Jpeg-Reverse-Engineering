@@ -74,7 +74,7 @@ public class JpegEncoder {
         byteArr = null;
 
         System.out.println("Preparing YCbCr Array to write to...");
-        byte[][] YCbCr = new byte[height][width*3]; // First pixel would be values YCbCr[0,1,2], etc.
+        int[][] YCbCr = new int[height][width*3]; // First pixel would be values YCbCr[0,1,2], etc.
 
         boolean firstEntered = false;
         System.out.println("Converting RGB data to YCbCr...");
@@ -250,7 +250,7 @@ public class JpegEncoder {
         return(Integer.parseInt(buffer.toString(), 16));
     }
 
-    public void RGBToYCbCrConverter(byte[][] yCbCrData, int x, int yCord, int colorData)
+    public void RGBToYCbCrConverter(int[][] yCbCrData, int x, int yCord, int colorData)
     { // use BufferedImage getRGB here
         // color space conversion begin from 0 to 255 -> -128 to 128
         int y = 16 + ((int) (65.738*((colorData & 0xff0000) >> 16) + 129.057*((colorData & 0xff00) >> 8) + 25.064*(colorData & 0xff))) >> 8;
@@ -258,19 +258,19 @@ public class JpegEncoder {
         int cr = 128 + ((int) (112.439*((colorData & 0xff0000) >> 16) - 94.154*((colorData & 0xff00) >> 8) - 18.285*(colorData & 0xff))) >> 8;
 
         if(y > 255) {
-            yCbCrData[yCord][x] = (byte)255; // row column order for arrays in java
+            yCbCrData[yCord][x] = 255; // row column order for arrays in java
         } else if(y < 0) {
-            yCbCrData[yCord][x] = (byte)0;
+            yCbCrData[yCord][x] = 0;
         } else {
-            yCbCrData[yCord][x] = (byte)y;
+            yCbCrData[yCord][x] = y;
         }
 
         if(cb > 255) {
-            yCbCrData[yCord][1 + x] = (byte)255;
+            yCbCrData[yCord][1 + x] = 255;
         } else if(cb < 0) {
-            yCbCrData[yCord][1 + x] = (byte)0;
+            yCbCrData[yCord][1 + x] = 0;
         } else {
-            yCbCrData[yCord][1 + x] = (byte)cb;
+            yCbCrData[yCord][1 + x] = cb;
         }
 
         if(cr > 255) {
@@ -289,9 +289,10 @@ public class JpegEncoder {
 
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
-        byte[][] yChannel = new byte[height][width];
-        byte[][] cbChannel = new byte[height][width];
-        byte[][] crChannel = new byte[height][width];
+        int[][] currentArray;
+        int[][] yChannel = new int[height][width];
+        int[][] cbChannel = new int[height][width];
+        int[][] crChannel = new int[height][width];
 
         for(i = 0; i < height; i++){ // put into separate channels for easier calculation during write time
             int threeChannelPosition = 0;
@@ -302,9 +303,10 @@ public class JpegEncoder {
             }
         }
 
-        float[][] dctArray0 = new float[8][8];
+        int[][] dctArray0 = new int[8][8];
         double[][] dctArray1 = new double[8][8];
-        int[] dctArray3 = new int[8*8];
+        int[] dctArray2 = new int[8*8];
+        int[] qTableNumber = new int[]{0, 1, 1};
 
         // start at upper left of image and work our way down in 8x8 chunks
 
@@ -312,12 +314,57 @@ public class JpegEncoder {
         int minBlockWidth, minBlockHeight;
         minBlockWidth = ((width % 8 != 0) ? (int)(Math.floor(width / 8.0) + 1) * 8 : width);
         minBlockHeight = ((height % 8 != 0) ? (int)(Math.floor(height / 8.0) + 1) * 8 : height);
+        // For now assume component widths and heights are all exact image dimensions
+        // This won't work for imageWidth % 8 != 0
+        // -> TODO: implement class to verify this
+        // This results in block widths of imageWidth / 8 -> 8, etc.
+        for(comp = 0; comp < 1; comp++)
+        {
+            minBlockHeight = Math.min(minBlockHeight, 8); // TODO: remove hard code after testing
+            minBlockWidth = Math.min(minBlockWidth, 8);
+        }
 
-//        for(comp = 0; comp < 3; comp++)
-//        {
-//            minBlockWidth = Math.min(minBlockWidth, compInfo[comp].widthInBlocks * 8);
-//        }
+        for(k = 0; k < minBlockHeight; k++)
+        {
+            for(l = 0; l < minBlockWidth; l++)
+            {
+                xPos = k * 8;
+                yPos = l * 8;
 
+                for(comp = 0; comp < 3; comp++)
+                {
+                    if(comp == 0)
+                    {
+                        currentArray = yChannel;
+                    } else if(comp == 1) {
+                        currentArray = cbChannel;
+                    } else {
+                        currentArray = crChannel;
+                    }
+
+                    for(i = 0; i < 1; i++) // VSamp
+                    {
+                        for(j = 0; j < 1; j++) // HSamp
+                        {
+                            xBlockOffset = j * 8;
+                            yBlockOffset = i * 8;
+                            for(m = 0; m < 8; m++)
+                            {
+                                for(n = 0; n < 8; n++)
+                                {
+                                    dctArray0[m][n] = currentArray[yPos + yBlockOffset + m][xPos + xBlockOffset + n];
+                                }
+                            }
+                            dctArray1 = dct.ForwardDCT(dctArray0);
+                            dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
+                            huf.BlockEncoder(output, dctArray2, lastDCValue[comp],
+                                    qTableNumber[comp], qTableNumber[comp]);
+                            lastDCValue[comp] = dctArray2[0];
+                        }
+                    }
+                }
+            }
+        }
+        huf.FlushBuffer(output);
     }
-
 }
