@@ -74,9 +74,7 @@ public class JpegEncoder {
         byteArr = null;
 
         System.out.println("Preparing YCbCr Array to write to...");
-        int[][] YCbCr = new int[height][width*3]; // First pixel would be values YCbCr[0,1,2], etc.
-
-        boolean firstEntered = false;
+        float[][] YCbCr = new float[height][width*3]; // First pixel would be values YCbCr[0,1,2], etc.
         System.out.println("Converting RGB data to YCbCr...");
         for(int i = 0; i < height; i++){
             int byteDataOffset = 0;
@@ -90,7 +88,7 @@ public class JpegEncoder {
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
-        outputStream = new BufferedOutputStream(new FileOutputStream("test.jpg"));
+        outputStream = new BufferedOutputStream(new FileOutputStream("test_2.jpg"));
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
@@ -98,7 +96,7 @@ public class JpegEncoder {
         huf = new HuffmanTableEncode(width, height);
 
         WriteHeaders(outputStream);
-        // Write Compressed data method
+        WriteCompressedData(outputStream, YCbCr);
         // End Marker
         byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
         outputStream.write(endOfImage);
@@ -250,49 +248,34 @@ public class JpegEncoder {
         return(Integer.parseInt(buffer.toString(), 16));
     }
 
-    public void RGBToYCbCrConverter(int[][] yCbCrData, int x, int yCord, int colorData)
+    public void RGBToYCbCrConverter(float[][] yCbCrData, int x, int yCord, int colorData)
     { // use BufferedImage getRGB here
         // color space conversion begin from 0 to 255 -> -128 to 128
-        int y = 16 + ((int) (65.738*((colorData & 0xff0000) >> 16) + 129.057*((colorData & 0xff00) >> 8) + 25.064*(colorData & 0xff))) >> 8;
-        int cb = 128 + ((int) (-37.945*((colorData & 0xff0000) >> 16) - 74.494*((colorData & 0xff00) >> 8) + 112.439*(colorData & 0xff))) >> 8;
-        int cr = 128 + ((int) (112.439*((colorData & 0xff0000) >> 16) - 94.154*((colorData & 0xff00) >> 8) - 18.285*(colorData & 0xff))) >> 8;
+        int r = (colorData >> 16) & 0xFF;
+        int g = (colorData >> 8) & 0xFF;
+        int b = (colorData) & 0xFF;
 
-        if(y > 255) {
-            yCbCrData[yCord][x] = 255; // row column order for arrays in java
-        } else if(y < 0) {
-            yCbCrData[yCord][x] = 0;
-        } else {
-            yCbCrData[yCord][x] = y;
-        }
 
-        if(cb > 255) {
-            yCbCrData[yCord][1 + x] = 255;
-        } else if(cb < 0) {
-            yCbCrData[yCord][1 + x] = 0;
-        } else {
-            yCbCrData[yCord][1 + x] = cb;
-        }
 
-        if(cr > 255) {
-            yCbCrData[yCord][2 + x] = (byte)255;
-        } else if(cr < 0) {
-            yCbCrData[yCord][2 + x]= (byte)0;
-        } else {
-            yCbCrData[yCord][2 + x] = (byte)cr;
-        }
+
+        yCbCrData[yCord][x] = (float) ((0.299 * r + 0.587 * g + 0.114 * b));
+
+        yCbCrData[yCord][1 + x] = 128 + (float) ((-0.16874 * r - 0.33126 * g + 0.5 * b));
+
+        yCbCrData[yCord][2 + x] = 128 + (float) ((0.5 * r - 0.41869 * g - 0.08131 * b));
         System.out.println("parsed coordinates: " + x + " " + yCord);
     }
 
-    public void WriteCompressedData(BufferedOutputStream output, byte[][] yCbCrData)
+    public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
     {
         int i, j, k, l, m, n;
 
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
-        int[][] currentArray;
-        int[][] yChannel = new int[height][width];
-        int[][] cbChannel = new int[height][width];
-        int[][] crChannel = new int[height][width];
+        float[][] currentArray;
+        float[][] yChannel = new float[height][width];
+        float[][] cbChannel = new float[height][width];
+        float[][] crChannel = new float[height][width];
 
         for(i = 0; i < height; i++){ // put into separate channels for easier calculation during write time
             int threeChannelPosition = 0;
@@ -303,7 +286,7 @@ public class JpegEncoder {
             }
         }
 
-        int[][] dctArray0 = new int[8][8];
+        float[][] dctArray0 = new float[8][8];
         double[][] dctArray1 = new double[8][8];
         int[] dctArray2 = new int[8*8];
         int[] qTableNumber = new int[]{0, 1, 1};
@@ -323,13 +306,13 @@ public class JpegEncoder {
             minBlockHeight = Math.min(minBlockHeight, 8); // TODO: remove hard code after testing
             minBlockWidth = Math.min(minBlockWidth, 8);
         }
-
+        xPos = 0;
         for(k = 0; k < minBlockHeight; k++)
         {
             for(l = 0; l < minBlockWidth; l++)
             {
-                xPos = k * 8;
-                yPos = l * 8;
+                xPos = l * 8;
+                yPos = k * 8;
 
                 for(comp = 0; comp < 3; comp++)
                 {
@@ -352,6 +335,7 @@ public class JpegEncoder {
                             {
                                 for(n = 0; n < 8; n++)
                                 {
+                                    //System.out.println("ypos: " + yPos + ", xpos: " + xPos + ", yBlockOffset: " + yBlockOffset + ", xBlockOffset: " + xBlockOffset + ", m: " + m + ", n: " + n);
                                     dctArray0[m][n] = currentArray[yPos + yBlockOffset + m][xPos + xBlockOffset + n];
                                 }
                             }

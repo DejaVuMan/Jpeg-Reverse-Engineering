@@ -107,7 +107,7 @@ public class DCT {
         divisorValues[1] = divisorChrominance;
     }
 
-    public double[][] ForwardDCT(int[][] input) //TODO: figure out if byte over double memory savings are worth it here
+    public double[][] ForwardDCT(float[][] input)
     {
         double[][] output = new double[blockSize][blockSize];
         double temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7, temp10, temp11, temp12, temp13;
@@ -218,7 +218,7 @@ public class DCT {
         {
             for (j = 0; j < blockSize; j++)
             {
-                output[index] = (int)(Math.round(inputData[i][j] / (((int[]) (quantizationValues[code]))[index])));
+                output[index] = (int)(Math.round(inputData[i][j] * (((double[]) (divisorValues[code]))[index])));
                 index++;
             }
         }
