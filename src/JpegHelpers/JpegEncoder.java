@@ -277,15 +277,11 @@ public class JpegEncoder {
         int g = (colorData >> 8) & 0xFF;
         int b = (colorData) & 0xFF;
 
-
-
-
         yCbCrData[yCord][x] = (float) ((0.299 * r + 0.587 * g + 0.114 * b));
 
         yCbCrData[yCord][1 + x] = 128 + (float) ((-0.16874 * r - 0.33126 * g + 0.5 * b));
 
         yCbCrData[yCord][2 + x] = 128 + (float) ((0.5 * r - 0.41869 * g - 0.08131 * b));
-        System.out.println("parsed coordinates: " + x + " " + yCord);
     }
 
     public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
@@ -328,7 +324,6 @@ public class JpegEncoder {
             minBlockHeight = Math.min(minBlockHeight, 8); // TODO: remove hard code after testing
             minBlockWidth = Math.min(minBlockWidth, 8);
         }
-        xPos = 0;
         for(k = 0; k < minBlockHeight; k++)
         {
             for(l = 0; l < minBlockWidth; l++)
@@ -341,10 +336,13 @@ public class JpegEncoder {
                     if(comp == 0)
                     {
                         currentArray = (float[][]) yChannel;
+                        System.out.println("parsing Y Channel");
                     } else if(comp == 1) {
                         currentArray = (float[][]) cbChannel;
+                        System.out.println("parsing Cb Channel");
                     } else {
                         currentArray = (float[][]) crChannel;
+                        System.out.println("parsing Cr Channel");
                     }
 
                     for(i = 0; i < 1; i++) // VSamp

@@ -169,7 +169,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
     }
 
     void IOWriter(int putBuffer, int putBits, BufferedOutputStream output) {
-        while(putBits > 7){
+        while(putBits >= 8){
             int c = (putBuffer >> 16) & 0xFF;
             try {
                 output.write(c);
