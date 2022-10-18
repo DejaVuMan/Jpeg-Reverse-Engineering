@@ -119,7 +119,7 @@ public class JpegEncoder {
         byte[] jfifHeader = { (byte)0xFF, (byte)0xE0, (byte)0x00, (byte)0x10, (byte)0x4A, (byte)0x46,
                 (byte)0x49, (byte)0x46, (byte)0x00, (byte)0x01, (byte)0x01, (byte)0x01,
                 (byte)0x00, (byte)0x60, (byte)0x00, (byte)0x60, (byte)0x00, (byte)0x00 };
-        WriteMarker(jfifHeader, output);
+        WriteArray(jfifHeader, output);
 
         //Comment Header
         String comment = "JPEG Encoding Test 2022";
