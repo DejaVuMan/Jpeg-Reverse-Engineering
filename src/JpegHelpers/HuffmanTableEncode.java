@@ -89,8 +89,7 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         acTableCount = 2;
 
         // DC
-        temp1 = zigzagTable[0] - precision;
-        temp0 = temp1;
+        temp0 = temp1 = zigzagTable[0] - precision;
 
         if(temp0 < 0){
             temp0 = -temp0;
@@ -147,8 +146,26 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
         putBits += size;
         putBuffer <<= 24 - putBits;
         putBuffer |= bufferInsertionBuffer;
-
-        IOWriter(putBuffer, putBits, output);
+        //IOWriter(putBuffer, putBits, output);
+        while(putBits >= 8){
+            int c = ((putBuffer >> 16) & 0xFF);
+            try{
+                output.write(c);
+            } catch(IOException e){
+                System.out.println("Error writing to file");
+                System.out.println(e.getMessage());
+            }
+            if(c == 0xFF){
+                try {
+                    output.write(0);
+                } catch (IOException e) {
+                    System.out.println("Error writing to file");
+                    System.out.println(e.getMessage());
+                }
+            }
+            putBuffer <<= 8;
+            putBits -= 8;
+        }
         bufferInsertionBuffer = putBuffer;
         bufferPutBits = putBits;
     }
@@ -156,8 +173,28 @@ public class HuffmanTableEncode { // based on huffman table implementation from 
     void FlushBuffer(BufferedOutputStream output){
         int putBuffer = bufferInsertionBuffer;
         int putBits = bufferPutBits;
+        //IOWriter(putBuffer, putBits, output);
 
-        IOWriter(putBuffer, putBits, output);
+        while(putBits >= 8){
+            int c = ((putBuffer >> 16) & 0xFF);
+            try{
+                output.write(c);
+            } catch(IOException e){
+                System.out.println("Error writing to file");
+                System.out.println(e.getMessage());
+            }
+            if(c == 0xFF){
+                try {
+                    output.write(0);
+                } catch (IOException e) {
+                    System.out.println("Error writing to file");
+                    System.out.println(e.getMessage());
+                }
+            }
+            putBuffer <<= 8;
+            putBits -= 8;
+        }
+
         if(putBits > 0){
             int c = (putBuffer >> 16) & 0xFF;
             try {
