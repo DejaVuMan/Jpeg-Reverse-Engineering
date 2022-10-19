@@ -8,11 +8,11 @@ public class DCT {
     // Theoretically we could change Object[] to Number[], but then we'd also need to type cast everything to Number
 
     // quantumLuminance and divisorLuminance are the default quantization table for luminance
-    public int[] quantumLuminance; //= new int[blockSize * blockSize];
+    public int[] quantumLuminance= new int[blockSize * blockSize];
     public double[] divisorLuminance = new double[blockSize * blockSize];
 
     // quantumChrominance and divisorChrominance are the default quantization table for chrominance
-    public int[] quantumChrominance; //= new int[blockSize * blockSize];
+    public int[] quantumChrominance= new int[blockSize * blockSize];
     public double[] divisorChrominance = new double[blockSize * blockSize];
 
     public void setQuality(int num) {
@@ -67,7 +67,7 @@ public class DCT {
         index = 0;
         for (i = 0; i < blockSize; i++) {
             for (j = 0; j < blockSize; j++) {
-                divisorLuminance[index] = 1.0 / (quantumLuminance[index] * scaleFactor[i] * scaleFactor[j] * 8.0);
+                divisorLuminance[index] = (1.0 / (quantumLuminance[index] * scaleFactor[i] * scaleFactor[j] * 8.0));
                 index++;
             }
         }
