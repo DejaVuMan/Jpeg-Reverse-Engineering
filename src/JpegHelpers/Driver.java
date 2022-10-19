@@ -2,6 +2,7 @@ package JpegHelpers;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
 
 public class Driver {
 
@@ -18,7 +19,7 @@ public class Driver {
 //            return;
 //        }
 
-        String filePath = "SPACE.bmp"; // "asianchildmoment.jpg"; //bmp_400.bmp
+        String filePath = "bmp_400.bmp"; // "asianchildmoment.jpg"; //bmp_400.bmp
         String filePath2 = "SPACE.JPG";
         // 2048x1536 -> 256 x 192 blocks -> Color Transform -> Apply DCT ->
         // Quantization (tables) -> Serialization (zig-zag)-> Vectoring(dpcm) -> Encoding (huffman)
@@ -29,26 +30,16 @@ public class Driver {
         //balloon.jpeg returns SMALLER image resolution
         //asianchildmoment.jpg returns same image resolution
 
-        // might be something to do with encoding process of the JPGs, this is a "basic" decoder
-
-//        try {
-//            new JpegDecoder().decode(filePath); // args[0]
-//        } catch (FileNotFoundException e) {
-//            System.err.println("File not found! Make sure you're using a valid file.");
-//        } catch (IOException e) {
-//            System.err.println("An IO Exception occurred: " + e.getLocalizedMessage());
-//        }
-//    }
-//}
-
         try {
+            Instant start = Instant.now();
             new JpegEncoder().Encode(filePath); // this is jpeg encoder
-            // Despite encoding the BMP to JPG incorrectly, attempting to decode it back has same file size, resolution
+            Instant end = Instant.now();
+            System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
             //new JpegDecoder().decode(filePath2); // this is jpeg decoder
         } catch(FileNotFoundException e) {
             System.err.println("File not found! Make sure you're using a valid file.");
         } catch(IOException e) {
             System.err.println("An IO Exception occurred: " + e.getLocalizedMessage());
         }
-        }
+    }
 }
