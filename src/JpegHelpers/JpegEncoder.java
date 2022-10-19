@@ -88,7 +88,7 @@ public class JpegEncoder {
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
-        outputStream = new BufferedOutputStream(new FileOutputStream("bmp_400_j.jpg"));
+        outputStream = new BufferedOutputStream(new FileOutputStream("bmp_400_jwork.jpg"));
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
@@ -135,7 +135,7 @@ public class JpegEncoder {
         byte[] dqtHeader = new byte[134];
         dqtHeader[0] = (byte)0xFF;
         dqtHeader[1] = (byte)0xDB;
-        dqtHeader[2] = (byte)0x00;
+        dqtHeader[2] = (byte)0x00; // 0x0084 -> 132 bytes long QT
         dqtHeader[3] = (byte)0x84;
         offset = 4; // account for first 4 bytes written in dqtheader array
         for(i = 0; i < 2; i++)
@@ -151,10 +151,6 @@ public class JpegEncoder {
         WriteArray(dqtHeader, output);
 
         //Start of Frame Header
-//        byte[] sofHeader = { (byte)0xFF, (byte)0xC0, (byte)0x00, (byte)11, (byte)8, // <- precision of img
-//                (byte)((height >> 8) & 0xFF), (byte)(height & 0xFF),
-//                (byte)((width >> 8) & 0xFF), (byte)(width & 0xFF),
-//                (byte)3, (byte)1, (byte)1 << 4 + 1, (byte)1 };
         byte[] sofHeader = new byte[19];
         sofHeader[0] = (byte)0xFF;
         sofHeader[1] = (byte)0xC0;
@@ -165,16 +161,16 @@ public class JpegEncoder {
         sofHeader[6] = (byte)(height & 0xFF);
         sofHeader[7] = (byte)((width >> 8) & 0xFF);
         sofHeader[8] = (byte)(width & 0xFF);
-        sofHeader[9] = (byte)3; // number of components
+        sofHeader[9] = (byte)3; // number of components (channels)
 
         sofHeader[10] = (byte)1; // component ID
-        sofHeader[11] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[11] = (1 << 4) + 1; // horizontal sampling factor, vertical sampling factor
         sofHeader[12] = (byte)0; // quantization table number
         sofHeader[13] = (byte)2; // component ID
-        sofHeader[14] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[14] = (1 << 4) + 1; // horizontal sampling factor, vertical sampling factor
         sofHeader[15] = (byte)1; // quantization table number
         sofHeader[16] = (byte)3; // component ID
-        sofHeader[17] = 1 << 4 + 1; // horizontal sampling factor, vertical sampling factor
+        sofHeader[17] = (1 << 4) + 1; // horizontal sampling factor, vertical sampling factor
         sofHeader[18] = (byte)1; // quantization table number
 
         //last 3 are Composition ID, H and V sampling factors, QT #
@@ -236,10 +232,10 @@ public class JpegEncoder {
         sos[9] = (byte)3; // ID of component
         sos[10] = (byte)((1 << 4) + 1);
 
-        sos[11] = (byte)0; // Ss
-        sos[12] = (byte)63; // Se
+        sos[11] = (byte)0; // Ss - Spectral Select Start
+        sos[12] = (byte)63; // Se - Spectral Select End
         //ah, al, 0, 0
-        sos[13] = (byte)(0);
+        sos[13] = (byte)0;
         WriteArray(sos, output);
     }
 
@@ -287,7 +283,7 @@ public class JpegEncoder {
     public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
     {
         int i, j, k, l, m, n;
-
+        int blockCounter = 1;
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
         float[][] currentArray;
@@ -319,10 +315,10 @@ public class JpegEncoder {
         // This won't work for imageWidth % 8 != 0
         // -> TODO: implement class to verify this
         // This results in block widths of imageWidth / 8 -> 8, etc.
-        for(comp = 0; comp < 1; comp++)
+        for(comp = 0; comp < 3; comp++)
         {
-            minBlockHeight = Math.min(minBlockHeight, 8); // TODO: remove hard code after testing
-            minBlockWidth = Math.min(minBlockWidth, 8);
+            minBlockHeight = Math.min(minBlockHeight, 60); // TODO: remove hard code after testing
+            minBlockWidth = Math.min(minBlockWidth, 80);
         }
         for(k = 0; k < minBlockHeight; k++)
         {
@@ -336,13 +332,13 @@ public class JpegEncoder {
                     if(comp == 0)
                     {
                         currentArray = (float[][]) yChannel;
-                        System.out.println("parsing Y Channel");
+                        //System.out.println("parsing Y Channel");
                     } else if(comp == 1) {
                         currentArray = (float[][]) cbChannel;
-                        System.out.println("parsing Cb Channel");
+                        //System.out.println("parsing Cb Channel");
                     } else {
                         currentArray = (float[][]) crChannel;
-                        System.out.println("parsing Cr Channel");
+                        //System.out.println("parsing Cr Channel");
                     }
 
                     for(i = 0; i < 1; i++) // VSamp
@@ -367,6 +363,7 @@ public class JpegEncoder {
                     }
                 }
             }
+            System.out.println("parsed block " + blockCounter++);
         }
         huf.FlushBuffer(output);
     }
