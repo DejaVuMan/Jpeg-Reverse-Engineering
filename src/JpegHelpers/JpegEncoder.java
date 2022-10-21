@@ -280,6 +280,22 @@ public class JpegEncoder {
         yCbCrData[yCord][2 + x] = 128 + (float) ((0.5 * r - 0.41869 * g - 0.08131 * b));
     }
 
+    public int BlockWidthCalculator(int blockSize){
+      if(blockSize % 8 != 0)
+      {
+          return (((int) Math.ceil(width / 8.0)) * 8) / 8;
+      }
+      return (blockSize / 8);
+    }
+
+    public int BlockHeightCalculator(int blockSize){
+        if(blockSize % 8 != 0)
+        {
+            return (((int) Math.ceil(height / 8.0)) * 8) / 8;
+        }
+        return (blockSize / 8);
+    }
+
     public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
     {
         int i, j, k, l, m, n;
@@ -315,11 +331,10 @@ public class JpegEncoder {
         // This won't work for imageWidth % 8 != 0
         // -> TODO: implement class to verify this
         // This results in block widths of imageWidth / 8 -> 8, etc.
-        for(comp = 0; comp < 3; comp++)
-        {
-            minBlockHeight = Math.min(minBlockHeight, 60); // TODO: remove hard code after testing
-            minBlockWidth = Math.min(minBlockWidth, 80);
-        }
+
+        minBlockHeight = Math.min(minBlockHeight, BlockHeightCalculator(minBlockHeight));
+        minBlockWidth = Math.min(minBlockWidth, BlockWidthCalculator(minBlockWidth));
+
         for(k = 0; k < minBlockHeight; k++)
         {
             for(l = 0; l < minBlockWidth; l++)
