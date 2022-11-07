@@ -317,8 +317,8 @@ public class JpegEncoder {
         // This results in block widths of imageWidth / 8 -> 8, etc.
         for(comp = 0; comp < 3; comp++)
         {
-            minBlockHeight = Math.min(minBlockHeight, 60); // TODO: remove hard code after testing
-            minBlockWidth = Math.min(minBlockWidth, 80);
+            minBlockHeight = Math.min(minBlockHeight, 50); // TODO: remove hard code after testing
+            minBlockWidth = Math.min(minBlockWidth, 64);
         }
         for(k = 0; k < minBlockHeight; k++)
         {
@@ -356,6 +356,11 @@ public class JpegEncoder {
                             }
                             dctArray1 = dct.ForwardDCT(dctArray0);
                             dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
+//
+//                            BufferedImage dctToWrite = new BufferedImage(8, 8, BufferedImage.TYPE_BYTE_GRAY);
+//                            ImageIO.write()
+                            // TODO: Write DCT to separate file for display, render with Swing?
+
                             huf.BlockEncoder(output, dctArray2, lastDCValue[comp],
                                     qTableNumber[comp], qTableNumber[comp]);
                             lastDCValue[comp] = dctArray2[0];

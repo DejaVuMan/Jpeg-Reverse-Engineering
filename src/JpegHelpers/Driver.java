@@ -29,13 +29,13 @@ public class Driver {
         //jpeg444.jpg returns same image resolution
         //balloon.jpeg returns SMALLER image resolution
         //asianchildmoment.jpg returns same image resolution
-
+        System.setProperty("org.graphstream.ui", "swing");
         try {
-            Instant start = Instant.now();
-            new JpegEncoder().Encode(filePath); // this is jpeg encoder
-            Instant end = Instant.now();
-            System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
-            //new JpegDecoder().decode(filePath2); // this is jpeg decoder
+//            Instant start = Instant.now();
+//            new JpegEncoder().Encode(filePath); // this is jpeg encoder
+//            Instant end = Instant.now();
+//            System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
+            new JpegDecoder().decode(filePath2); // this is jpeg decoder
         } catch(FileNotFoundException e) {
             System.err.println("File not found! Make sure you're using a valid file.");
         } catch(IOException e) {

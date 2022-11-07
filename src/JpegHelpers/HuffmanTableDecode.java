@@ -1,6 +1,9 @@
 package JpegHelpers;
 
 import java.util.HashMap;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+import javax.swing.*;
 
 public class HuffmanTableDecode {
     private final HashMap<Integer, int[]> lookup;
@@ -24,13 +27,16 @@ public class HuffmanTableDecode {
     }
 
     HuffmanTableDecode(HashMap<Integer, int[]> lookup){
+//        Graph graph = new SingleGraph("Huffman Tree");
+//        graph.setStrict(false);
+//        graph.setAutoCreate(true); // create nodes automagically
+        // TODO: Implement graphing and display of Huffman Tree after generating it with post order traversal?
+        //int idx = 0;
         this.lookup = lookup; // HM reference to code with corresponding symbols
-
         root = new Node(); // root node
         root.initChildNodes(); // initialize root's children
         Node farLeft = root.children[0];
         Node current;
-
         for(int i = 1; i <= lookup.size(); i++){
             if(getSymbolCount(i) == 0){
                 current = farLeft;
@@ -45,16 +51,21 @@ public class HuffmanTableDecode {
                     farLeft.symbol = symbol;
                     farLeft = getRightNodeOf(farLeft);
                 }
+                //graph.addEdge(Integer.toString(idx++), farLeft.parent.toString(), farLeft.toString());
                 farLeft.initChildNodes();
                 current = getRightNodeOf(farLeft);
                 farLeft = farLeft.children[0];
-
                 while(current != null){
                     current.initChildNodes();
                     current = getRightNodeOf(current);
                 }
             }
         }
+//        try{
+//            graph.display();
+//        } catch(Exception e){
+//            System.err.println("Graph display failed: " + e.getLocalizedMessage());
+//        }
     }
 
     private int getSymbolCount(int code){
