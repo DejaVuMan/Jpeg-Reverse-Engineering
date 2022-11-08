@@ -10,38 +10,38 @@ public class HuffmanTableDecode {
     private final Node root;
 
     private static class Node { // node in binary tree format
+        private int key;
         private int symbol;
         private Node[] children; // [0] = left, [1] = right
         private Node parent;
 
         private Node() { // root
             symbol = -1; // nodes with -1 symbol have no leaves
+            key = 0;
         }
-        private Node(Node parent){
+        private Node(Node parent, int key){
             this();
             this.parent = parent;
+            this.key = key;
         }
-        private void initChildNodes(){
-            children = new Node[]{new Node(this), new Node(this)};
+        private void initChildNodes(int key){
+            children = new Node[]{new Node(this, key), new Node(this, key+1)};
         }
     }
 
     HuffmanTableDecode(HashMap<Integer, int[]> lookup){
-//        Graph graph = new SingleGraph("Huffman Tree");
-//        graph.setStrict(false);
-//        graph.setAutoCreate(true); // create nodes automagically
         // TODO: Implement graphing and display of Huffman Tree after generating it with post order traversal?
-        //int idx = 0;
+        int keyGen = 1;
         this.lookup = lookup; // HM reference to code with corresponding symbols
         root = new Node(); // root node
-        root.initChildNodes(); // initialize root's children
+        root.initChildNodes(keyGen+=2); // initialize root's children
         Node farLeft = root.children[0];
         Node current;
         for(int i = 1; i <= lookup.size(); i++){
             if(getSymbolCount(i) == 0){
                 current = farLeft;
                 while(current != null){
-                    current.initChildNodes();
+                    current.initChildNodes(keyGen+=2);
                     current = getRightNodeOf(current); // gets stuck here?
                     //System.out.println("current: " + current);
                 }
@@ -51,21 +51,22 @@ public class HuffmanTableDecode {
                     farLeft.symbol = symbol;
                     farLeft = getRightNodeOf(farLeft);
                 }
-                //graph.addEdge(Integer.toString(idx++), farLeft.parent.toString(), farLeft.toString());
-                farLeft.initChildNodes();
+                farLeft.initChildNodes(keyGen+=2);
                 current = getRightNodeOf(farLeft);
                 farLeft = farLeft.children[0];
                 while(current != null){
-                    current.initChildNodes();
+                    current.initChildNodes(keyGen+=2);
                     current = getRightNodeOf(current);
                 }
             }
         }
-//        try{
-//            graph.display();
-//        } catch(Exception e){
-//            System.err.println("Graph display failed: " + e.getLocalizedMessage());
-//        }
+        Graph graph = new SingleGraph("Huffman Tree");
+        graphVisualization(graph, root);
+        try{
+            graph.display();
+        } catch(Exception e){
+            System.err.println("Graph display failed: " + e.getLocalizedMessage());
+        }
     }
 
     private int getSymbolCount(int code){
@@ -110,5 +111,23 @@ public class HuffmanTableDecode {
             }
         }
         return currentNode.symbol;
+    }
+
+    private void graphVisualization(Graph graph, Node node){
+        if(node == null)
+            return;
+        graph.addNode(Integer.toString(node.key));
+
+        if(node.children != null){
+            graphVisualization(graph, node.children[0]);
+            graphVisualization(graph, node.children[1]);
+
+            if(node.children[0] != null){
+                graph.addEdge(Integer.toString(node.key) + Integer.toString(node.children[0].key), Integer.toString(node.key), Integer.toString(node.children[0].key));
+            }
+            if(node.children[1] != null){
+                graph.addEdge(Integer.toString(node.key) + Integer.toString(node.children[1].key), Integer.toString(node.key), Integer.toString(node.children[1].key));
+            }
+        }
     }
 }
