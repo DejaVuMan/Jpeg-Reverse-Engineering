@@ -3,6 +3,10 @@ package JpegHelpers;
 import java.util.HashMap;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.layout.springbox.implementations.LinLog;
+import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.layout.Layout;
+
 import javax.swing.*;
 
 public class HuffmanTableDecode {
@@ -61,9 +65,24 @@ public class HuffmanTableDecode {
             }
         }
         Graph graph = new SingleGraph("Huffman Tree");
+
+        String styleSheet =
+            "node {" +
+            "	text-alignment: right;" +
+            "	text-offset: 10px, 0px;" +
+            "   size: 5px, 5px;" +
+            "}" +
+            "node.marked {" +
+            "	fill-color: red;" +
+            "}";
+
+        graph.setAttribute("ui.stylesheet", styleSheet);
+
         graphVisualization(graph, root);
+
         try{
-            graph.display();
+            Viewer viewer = graph.display();
+            viewer.enableAutoLayout(new LinLog());
         } catch(Exception e){
             System.err.println("Graph display failed: " + e.getLocalizedMessage());
         }
@@ -116,7 +135,16 @@ public class HuffmanTableDecode {
     private void graphVisualization(Graph graph, Node node){
         if(node == null)
             return;
-        graph.addNode(Integer.toString(node.key));
+
+        org.graphstream.graph.Node n = graph.addNode(Integer.toString(node.key));
+        //n.setAttribute("x", rank(node.key));
+        //n.setAttribute("y", depth(node.key)*-1);
+        n.setAttribute("ui.label", node.symbol == -1 ? "" : node.symbol);
+        if(node.symbol != -1)
+        {
+            n.setAttribute("ui.style", "fill-color: rgb(255, 0, 0);");
+        }
+
 
         if(node.children != null){
             graphVisualization(graph, node.children[0]);
