@@ -299,6 +299,7 @@ public class JpegEncoder {
     public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
     {
         int i, j, k, l, m, n;
+        int dctCounter = 1;
         int blockCounter = 1;
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
 
@@ -371,6 +372,7 @@ public class JpegEncoder {
                             }
                             dctArray1 = dct.ForwardDCT(dctArray0);
                             dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
+                            WriteDCTImage("DCT" + dctCounter++ + ".png", dctArray2);
                             huf.BlockEncoder(output, dctArray2, lastDCValue[comp],
                                     qTableNumber[comp], qTableNumber[comp]);
                             lastDCValue[comp] = dctArray2[0];
@@ -381,5 +383,23 @@ public class JpegEncoder {
             System.out.println("parsed block " + blockCounter++);
         }
         huf.FlushBuffer(output);
+    }
+
+    public void WriteDCTImage(String filePath, int[] dataToParse){
+        int height = 8;
+        int width = 8;
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                int value = dataToParse[i * width + j];
+                image.setRGB(j, i, (value << 16) | (value << 8) | value);
+            }
+        }
+        try {
+            ImageIO.write(image, "png", new File(filePath));
+        } catch (IOException e) {
+            System.out.println("Error writing DCT image:");
+            e.printStackTrace();
+        }
     }
 }
