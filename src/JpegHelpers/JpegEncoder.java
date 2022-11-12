@@ -1,11 +1,10 @@
 package JpegHelpers;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 
 public class JpegEncoder {
 
@@ -95,13 +94,17 @@ public class JpegEncoder {
         System.out.println("Initializing Huffman Table...");
         huf = new HuffmanTableEncode(width, height);
 
+        BufferedImage dctResult = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics dctDrawer = dctResult.getGraphics(); // create image we write DCT to
+
         WriteHeaders(outputStream);
-        WriteCompressedData(outputStream, YCbCr);
+        WriteCompressedData(outputStream, YCbCr, dctDrawer);
         // End Marker
         byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
         WriteMarker(endOfImage, outputStream);
         try{
             outputStream.flush();
+            ImageIO.write(dctResult,"png", new File("dct.png"));
         } catch (IOException e){
             System.out.println("Error flushing output stream");
             System.out.println(e.getMessage());
@@ -296,12 +299,12 @@ public class JpegEncoder {
         return (blockSize / 8);
     }
 
-    public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData)
-    {
+    public void WriteCompressedData(BufferedOutputStream output, float[][] yCbCrData, Graphics dctDrawer) {
         int i, j, k, l, m, n;
-        int dctCounter = 1;
         int blockCounter = 1;
         int comp, xPos, yPos, xBlockOffset, yBlockOffset;
+        int xDct = 0, yDct = 0;
+        boolean dctNotEntered = true;
 
         float[][] currentArray;
         float[][] yChannel = new float[height][width];
@@ -338,8 +341,11 @@ public class JpegEncoder {
 
         for(k = 0; k < minBlockHeight; k++)
         {
+            yDct += 8;
+            xDct = 0;
             for(l = 0; l < minBlockWidth; l++)
             {
+                xDct += 8;
                 xPos = l * 8;
                 yPos = k * 8;
 
@@ -371,35 +377,37 @@ public class JpegEncoder {
                                 }
                             }
                             dctArray1 = dct.ForwardDCT(dctArray0);
+                            if(dctNotEntered)
+                            {
+                                WriteDCTImage(dctDrawer,dctArray1, xDct, yDct);
+                                dctNotEntered = false;
+                            }
                             dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
-                            WriteDCTImage("DCT" + dctCounter++ + ".png", dctArray2);
                             huf.BlockEncoder(output, dctArray2, lastDCValue[comp],
                                     qTableNumber[comp], qTableNumber[comp]);
                             lastDCValue[comp] = dctArray2[0];
                         }
                     }
                 }
+                dctNotEntered = true;
             }
             System.out.println("parsed block " + blockCounter++);
         }
         huf.FlushBuffer(output);
     }
 
-    public void WriteDCTImage(String filePath, int[] dataToParse){
-        int height = 8;
-        int width = 8;
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    public void WriteDCTImage(Graphics imageWriter, double[][] dataToParse, int xOffset, int yOffset){
+        // write DataToParse to BufferedImage
+        int height = dataToParse.length;
+        int width = dataToParse[0].length;
+        BufferedImage dctImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
-                int value = dataToParse[i * width + j];
-                image.setRGB(j, i, (value << 16) | (value << 8) | value);
+                int color = (int) dataToParse[i][j];
+                color = (color << 16) | (color << 8) | color;
+                dctImage.setRGB(j, i, color);
             }
         }
-        try {
-            ImageIO.write(image, "png", new File(filePath));
-        } catch (IOException e) {
-            System.out.println("Error writing DCT image:");
-            e.printStackTrace();
-        }
+        imageWriter.drawImage(dctImage, xOffset, yOffset, null);
     }
 }
