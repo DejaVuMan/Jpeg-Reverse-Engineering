@@ -81,6 +81,8 @@ public class HuffmanTableDecode {
         graphVisualization(graph, root);
 
         try{
+            // TODO: Fix graph visualization
+            // display graph in new JFrame window
             Viewer viewer = graph.display();
             viewer.enableAutoLayout(new LinLog());
         } catch(Exception e){

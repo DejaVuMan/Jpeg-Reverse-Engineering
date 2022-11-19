@@ -66,21 +66,51 @@ public class Driver {
             new JpegEncoder().Encode(path); // this is jpeg encoder
             Instant end = Instant.now();
             System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
-        } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        JFrame doneWindow = new JFrame("Encoding Done");
-        JLabel doneLabel = new JLabel("Encoding Done!");
-        doneLabel.setBounds(40, 50, 100, 30);
-        doneWindow.add(doneLabel);
-        doneWindow.setSize(200, 200);
-        doneWindow.setLayout(null);
-        doneWindow.setVisible(true);
-    });
-    }
 
+            JFrame doneWindow = new JFrame("Encoding Done");
+            JLabel doneLabel = new JLabel("Encoding Done!");
+            doneLabel.setBounds(40, 50, 100, 30);
+            doneWindow.add(doneLabel);
+            doneWindow.setSize(200, 200);
+            doneWindow.setLayout(null);
+            doneWindow.setVisible(true);
+
+            } catch (FileNotFoundException fileNotFoundException) {
+                fileNotFoundException.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+
+    decodeButton.addActionListener(e -> {
+        if (path.equals("")) {
+            System.out.println("Please set a path first!");
+            return;
+        } else if (!path.endsWith(".jpg")) {
+            System.out.println("Please set a valid JPEG file path!");
+            return;
+        }
+        try {
+            Instant start = Instant.now();
+            new JpegDecoder().decode(path);
+            Instant end = Instant.now();
+            System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
+
+            JFrame doneWindow = new JFrame("Decoding Done");
+            JLabel doneLabel = new JLabel("Decoding Done!");
+            doneLabel.setBounds(40, 50, 100, 30);
+            doneWindow.add(doneLabel);
+            doneWindow.setSize(200, 200);
+            doneWindow.setLayout(null);
+            doneWindow.setVisible(true);
+
+            } catch (FileNotFoundException fileNotFoundException) {
+                fileNotFoundException.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+    }
 
     // 2048x1536 -> 256 x 192 blocks -> Color Transform -> Apply DCT ->
     // Quantization (tables) -> Serialization (zig-zag)-> Vectoring(dpcm) -> Encoding (huffman)
