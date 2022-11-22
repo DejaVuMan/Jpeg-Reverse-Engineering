@@ -99,14 +99,22 @@ public class Driver {
 
             Container contentPane = doneWindow.getContentPane();
             Image image = ImageIO.read(new File(path.substring(0, path.length() - 4) + ".bmp"));
-            ImageIcon icon = new ImageIcon(image);
-            JLabel imageLabel = new JLabel(icon);
-            Dimension size = imageLabel.getPreferredSize(); // get size of image we set to JLabel
-            imageLabel.setBounds(0, 0, size.width, size.height); // set bounds of JLabel to size of image
+            ImageIcon resultImage = new ImageIcon(image);
+            JLabel imageLabel = new JLabel(resultImage);
+            Dimension resultSize = imageLabel.getPreferredSize(); // get size of image we set to JLabel
+            imageLabel.setBounds(0, 0, resultSize.width, resultSize.height); // set bounds of JLabel
+
+            Image dctImage = ImageIO.read(new File("dct.png"));
+            ImageIcon dctImageIcon = new ImageIcon(dctImage);
+            JLabel dctLabel = new JLabel(dctImageIcon);
+            Dimension dctSize = dctLabel.getPreferredSize(); // get size of image we set to JLabel
+
+            dctLabel.setBounds(resultSize.width, 0, dctSize.width, dctSize.height);
             doneLabel.setBounds(40, 50, 100, 30);
             contentPane.add(imageLabel);
+            contentPane.add(dctLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(imageLabel.getWidth(), imageLabel.getHeight());
+            doneWindow.setSize(imageLabel.getWidth()*2, imageLabel.getHeight());
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
