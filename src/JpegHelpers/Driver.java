@@ -42,7 +42,7 @@ public class Driver {
         path = filePathField.getText();
         System.out.println("Path set to: " + path);
     });
-
+    //TODO: Move to separate class for better organization and code readability
     encodeButton.addActionListener(e -> {
         if(path.equals("")){
             System.out.println("Please set a path first!");
@@ -59,9 +59,17 @@ public class Driver {
 
             JFrame doneWindow = new JFrame("Encoding Done");
             JLabel doneLabel = new JLabel("Encoding Done!");
+
+            Container contentPane = doneWindow.getContentPane();
+            Image image = ImageIO.read(new File(path.substring(0, path.length() - 4) + ".jpg"));
+            ImageIcon icon = new ImageIcon(image);
+            JLabel imageLabel = new JLabel(icon);
+            Dimension size = imageLabel.getPreferredSize(); // get size of image we set to JLabel
+            imageLabel.setBounds(0, 0, size.width, size.height); // set bounds of JLabel to size of image
             doneLabel.setBounds(40, 50, 100, 30);
+            contentPane.add(imageLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(200, 200);
+            doneWindow.setSize(imageLabel.getWidth(), imageLabel.getHeight());
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
@@ -98,7 +106,7 @@ public class Driver {
             doneLabel.setBounds(40, 50, 100, 30);
             contentPane.add(imageLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(imageLabel.getWidth()+40, imageLabel.getHeight()+50);
+            doneWindow.setSize(imageLabel.getWidth(), imageLabel.getHeight());
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 

@@ -87,7 +87,7 @@ public class JpegEncoder {
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
-        outputStream = new BufferedOutputStream(new FileOutputStream("bmp_400_jwork.jpg"));
+        outputStream = new BufferedOutputStream(new FileOutputStream(image.substring(0, image.length()-4) + ".jpg"));
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
