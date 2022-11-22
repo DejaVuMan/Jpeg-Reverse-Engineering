@@ -2,6 +2,7 @@ package JpegHelpers;
 
 import javax.swing.*;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Instant;
@@ -38,13 +39,14 @@ public class Driver {
     decodeButton.setBounds(40, 130, 200, 30);
 
 
+    mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Terminate on close of window
     mainWindow.add(encodeButton);
     mainWindow.add(filePathField);
     mainWindow.add(setPath);
     mainWindow.add(decodeButton);
     mainWindow.add(pathLabel);
 
-    mainWindow.setSize(400,400);
+    mainWindow.setSize(800,400);
     mainWindow.setLayout(null);
     mainWindow.setVisible(true);
 
@@ -98,9 +100,16 @@ public class Driver {
 
             JFrame doneWindow = new JFrame("Decoding Done");
             JLabel doneLabel = new JLabel("Decoding Done!");
+
+            Container contentPane = doneWindow.getContentPane();
+            JLabel imageLabel = new JLabel();
+            imageLabel.setIcon(new ImageIcon(path)); //TODO: Replace with actual resultant image
+            Dimension size = imageLabel.getPreferredSize(); // get size of image we set to JLabel
+            imageLabel.setBounds(0, 0, size.width, size.height); // set bounds of JLabel to size of image
             doneLabel.setBounds(40, 50, 100, 30);
+            contentPane.add(imageLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(200, 200);
+            doneWindow.setSize(imageLabel.getWidth()+40, imageLabel.getHeight()+50);
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 

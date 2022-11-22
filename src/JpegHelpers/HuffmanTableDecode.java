@@ -1,5 +1,6 @@
 package JpegHelpers;
 
+import java.awt.*;
 import java.util.HashMap;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -82,9 +83,8 @@ public class HuffmanTableDecode {
 
         try{
             // TODO: Fix graph visualization
-            // display graph in new JFrame window
-            Viewer viewer = graph.display();
-            viewer.enableAutoLayout(new LinLog());
+            //Viewer viewer = graph.display();
+            //viewer.enableAutoLayout(new LinLog());
         } catch(Exception e){
             System.err.println("Graph display failed: " + e.getLocalizedMessage());
         }
