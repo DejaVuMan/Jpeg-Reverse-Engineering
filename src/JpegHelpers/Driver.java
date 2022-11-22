@@ -1,8 +1,10 @@
 package JpegHelpers;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.awt.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Instant;
@@ -10,20 +12,6 @@ import java.time.Instant;
 public class Driver {
     private static String path = ""; // empty initial path to be changed on button press.
     public static void main(String[] args) {
-//        String filePath = "bmp_1080.bmp";
-//        String filePath2 = "bmp_400_jwork.jpg";
-//        System.setProperty("org.graphstream.ui", "swing");
-//        try {
-//            Instant start = Instant.now();
-//            new JpegEncoder().Encode(filePath); // this is jpeg encoder
-//            Instant end = Instant.now();
-//            System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
-//            //new JpegDecoder().decode(filePath2); // this is jpeg decoder
-//        } catch(FileNotFoundException e) {
-//            System.err.println("File not found! Make sure you're using a valid file.");
-//        } catch(IOException e) {
-//            System.err.println("An IO Exception occurred: " + e.getLocalizedMessage());
-//        }
     JFrame mainWindow = new JFrame("JPEG Encoder");
 
     JButton encodeButton = new JButton("Encode (BMP to JPEG)");
@@ -102,8 +90,9 @@ public class Driver {
             JLabel doneLabel = new JLabel("Decoding Done!");
 
             Container contentPane = doneWindow.getContentPane();
-            JLabel imageLabel = new JLabel();
-            imageLabel.setIcon(new ImageIcon(path)); //TODO: Replace with actual resultant image
+            Image image = ImageIO.read(new File(path.substring(0, path.length() - 4) + ".bmp"));
+            ImageIcon icon = new ImageIcon(image);
+            JLabel imageLabel = new JLabel(icon);
             Dimension size = imageLabel.getPreferredSize(); // get size of image we set to JLabel
             imageLabel.setBounds(0, 0, size.width, size.height); // set bounds of JLabel to size of image
             doneLabel.setBounds(40, 50, 100, 30);
