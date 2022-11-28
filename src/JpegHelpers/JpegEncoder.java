@@ -3,6 +3,7 @@ package JpegHelpers;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 
@@ -15,6 +16,7 @@ public class JpegEncoder {
     int dataStartPoint;
     BufferedOutputStream outputStream;
     DCT dct = new DCT();
+    ArrayList<Float> RMSEPool = new ArrayList<>();
 
     public static int[] jpegNaturalOrder = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
             12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
@@ -102,8 +104,11 @@ public class JpegEncoder {
         // End Marker
         byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
         WriteMarker(endOfImage, outputStream);
+        System.out.println("RMSE of DCTs: " + MeanAverage(RMSEPool));
+
         try{
             outputStream.flush();
+            System.out.println("Done!");
             ImageIO.write(dctResult,"png", new File("dct.png"));
         } catch (IOException e){
             System.out.println("Error flushing output stream");
@@ -333,7 +338,6 @@ public class JpegEncoder {
         minBlockHeight = ((height % 8 != 0) ? (int)(Math.floor(height / 8.0) + 1) * 8 : height);
         // For now assume component widths and heights are all exact image dimensions
         // This won't work for imageWidth % 8 != 0
-        // -> TODO: implement class to verify this
         // This results in block widths of imageWidth / 8 -> 8, etc.
 
         minBlockHeight = Math.min(minBlockHeight, BlockHeightCalculator(minBlockHeight));
@@ -379,6 +383,8 @@ public class JpegEncoder {
                             dctArray1 = dct.ForwardDCT(dctArray0);
                             if(dctNotEntered)
                             {
+                                // root mean square error formula
+                                RMSEPool.add(RootMeanSquareError(dctArray0, dctArray1));
                                 WriteDCTImage(dctDrawer,dctArray1, xDct, yDct);
                                 dctNotEntered = false;
                             }
@@ -410,4 +416,38 @@ public class JpegEncoder {
         }
         imageWriter.drawImage(dctImage, xOffset, yOffset, null);
     }
+
+    public float RootMeanSquareError(float[][] dctArray0, double[][] dctArray1){
+        // rmse can be summarized as sqrt((forecast - observed)^2)
+        int square0 = 0;
+        float mean0 = 0;
+        float root0 = 0;
+
+        for(int i = 0; i < dctArray0.length; i++){
+            square0 += Math.pow(dctArray0[i][0], 2);
+        }
+        mean0 = square0 / (float) dctArray0.length;
+        root0 = (float) Math.sqrt(mean0);
+
+        int square1 = 0;
+        float mean1 = 0;
+        float root1 = 0;
+        for(int i = 0; i < dctArray1.length; i++){
+            square1 += Math.pow(dctArray1[i][0], 2);
+        }
+        mean1 = square1 / (float) dctArray1.length;
+        root1 = (float) Math.sqrt(mean1);
+
+        return (root1 - root0);
+    }
+
+    //TODO: i really need to organize this code better lol, there is absolutely no reason for it to be over 450 lines
+    public double MeanAverage(ArrayList<Float> RMSEPool){
+        double sum = 0;
+        for(int i = 0; i < RMSEPool.size(); i++){
+            sum += RMSEPool.get(i);
+        }
+        return sum / RMSEPool.size();
+    }
+
 }
