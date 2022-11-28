@@ -65,11 +65,19 @@ public class Driver {
             ImageIcon icon = new ImageIcon(image);
             JLabel imageLabel = new JLabel(icon);
             Dimension size = imageLabel.getPreferredSize(); // get size of image we set to JLabel
+
+            Image dctImage = ImageIO.read(new File("dct.png"));
+            ImageIcon dctImageIcon = new ImageIcon(dctImage);
+            JLabel dctLabel = new JLabel(dctImageIcon);
+            Dimension dctSize = dctLabel.getPreferredSize(); // get size of image we set to JLabel
+
+            dctLabel.setBounds(size.width, 0, dctSize.width, dctSize.height);
             imageLabel.setBounds(0, 0, size.width, size.height); // set bounds of JLabel to size of image
             doneLabel.setBounds(40, 50, 100, 30);
             contentPane.add(imageLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(imageLabel.getWidth(), imageLabel.getHeight());
+            contentPane.add(dctLabel);
+            doneWindow.setSize(imageLabel.getWidth()*2, imageLabel.getHeight());
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
@@ -104,17 +112,10 @@ public class Driver {
             Dimension resultSize = imageLabel.getPreferredSize(); // get size of image we set to JLabel
             imageLabel.setBounds(0, 0, resultSize.width, resultSize.height); // set bounds of JLabel
 
-            Image dctImage = ImageIO.read(new File("dct.png"));
-            ImageIcon dctImageIcon = new ImageIcon(dctImage);
-            JLabel dctLabel = new JLabel(dctImageIcon);
-            Dimension dctSize = dctLabel.getPreferredSize(); // get size of image we set to JLabel
-
-            dctLabel.setBounds(resultSize.width, 0, dctSize.width, dctSize.height);
             doneLabel.setBounds(40, 50, 100, 30);
             contentPane.add(imageLabel);
-            contentPane.add(dctLabel);
             doneWindow.add(doneLabel);
-            doneWindow.setSize(imageLabel.getWidth()*2, imageLabel.getHeight());
+            doneWindow.setSize(imageLabel.getWidth(), imageLabel.getHeight());
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
