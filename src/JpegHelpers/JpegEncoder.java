@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
 
@@ -16,7 +17,7 @@ public class JpegEncoder {
     int dataStartPoint;
     BufferedOutputStream outputStream;
     DCT dct = new DCT();
-    ArrayList<Float> RMSEPool = new ArrayList<>();
+    ArrayList<Double> RMSEPool = new ArrayList<>();
 
     public static int[] jpegNaturalOrder = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
             12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
@@ -108,6 +109,7 @@ public class JpegEncoder {
 
         try{
             outputStream.flush();
+            outputStream.close();
             System.out.println("Done!");
             ImageIO.write(dctResult,"png", new File("dct.png"));
         } catch (IOException e){
@@ -381,14 +383,14 @@ public class JpegEncoder {
                                 }
                             }
                             dctArray1 = dct.ForwardDCT(dctArray0);
+                            dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
                             if(dctNotEntered)
                             {
                                 // root mean square error formula
-                                RMSEPool.add(RootMeanSquareError(dctArray0, dctArray1));
+                                RMSEPool.add(RootMeanSquareError(dctArray0, dctArray2));
                                 WriteDCTImage(dctDrawer,dctArray1, xDct, yDct);
                                 dctNotEntered = false;
                             }
-                            dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
                             huf.BlockEncoder(output, dctArray2, lastDCValue[comp],
                                     qTableNumber[comp], qTableNumber[comp]);
                             lastDCValue[comp] = dctArray2[0];
@@ -417,37 +419,31 @@ public class JpegEncoder {
         imageWriter.drawImage(dctImage, xOffset, yOffset, null);
     }
 
-    public float RootMeanSquareError(float[][] dctArray0, double[][] dctArray1){
-        // rmse can be summarized as sqrt((forecast - observed)^2)
-        int square0 = 0;
-        float mean0 = 0;
-        float root0 = 0;
-
-        for(int i = 0; i < dctArray0.length; i++){
-            square0 += Math.pow(dctArray0[i][0], 2);
+    public double RootMeanSquareError(float[][] observed, int[] forecast){
+        // rmse can be summarized as sqrt(mean((forecast - observed)^2))
+        // observed is [8][8], forecast is [8*8] (so [64])
+        double addSubResults = 0.0;
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                addSubResults += Math.pow((forecast[(8*i) + j] - observed[i][j]), 2);
+            }
         }
-        mean0 = square0 / (float) dctArray0.length;
-        root0 = (float) Math.sqrt(mean0);
-
-        int square1 = 0;
-        float mean1 = 0;
-        float root1 = 0;
-        for(int i = 0; i < dctArray1.length; i++){
-            square1 += Math.pow(dctArray1[i][0], 2);
-        }
-        mean1 = square1 / (float) dctArray1.length;
-        root1 = (float) Math.sqrt(mean1);
-
-        return (root1 - root0);
+        addSubResults = addSubResults / 64.0;
+        return Math.sqrt(addSubResults);
     }
 
     //TODO: i really need to organize this code better lol, there is absolutely no reason for it to be over 450 lines
-    public double MeanAverage(ArrayList<Float> RMSEPool){
+    public double MeanAverage(ArrayList<Double> RMSEPool){
+        System.out.println("Calculating Mean Average");
+        System.out.println("RMSE Pool size: " + RMSEPool.size());
+        System.out.println("Highest RMSE Value: " + Collections.max(RMSEPool));
+        System.out.println("Lowest RMSE Value: " + Collections.min(RMSEPool));
         double sum = 0;
         for(int i = 0; i < RMSEPool.size(); i++){
             sum += RMSEPool.get(i);
         }
         return sum / RMSEPool.size();
     }
-
 }
