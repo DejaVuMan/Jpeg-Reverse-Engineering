@@ -85,6 +85,7 @@ public class HuffmanTableDecode {
         try{
             System.setProperty("org.graphstream.ui", "swing");
             Viewer viewer = graph.display();
+            viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
             viewer.enableAutoLayout(new LinLog());
         } catch(Exception e){
             System.err.println("Graph display failed: " + e.getLocalizedMessage());
@@ -146,6 +147,10 @@ public class HuffmanTableDecode {
         if(node.symbol != -1)
         {
             n.setAttribute("ui.style", "fill-color: rgb(255, 0, 0);");
+        }
+        if(totalNodes == 1) // differentiate the first "root" node
+        {
+            n.setAttribute("ui.style", "fill-color: rgb(0, 0, 255);");
         }
 
         if(node.children != null){
