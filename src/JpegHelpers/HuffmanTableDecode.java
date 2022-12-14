@@ -1,5 +1,6 @@
 package JpegHelpers;
 
+import java.awt.*;
 import java.util.HashMap;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -12,6 +13,8 @@ import javax.swing.*;
 public class HuffmanTableDecode {
     private final HashMap<Integer, int[]> lookup;
     private final Node root;
+    private double allBits = 0;
+    private int totalNodes = 0;
 
     private static class Node { // node in binary tree format
         private int key;
@@ -64,8 +67,7 @@ public class HuffmanTableDecode {
                 }
             }
         }
-        Graph graph = new SingleGraph("Huffman Tree");
-
+        Graph graph = new SingleGraph("Nodes: " + totalNodes);
         String styleSheet =
             "node {" +
             "	text-alignment: right;" +
@@ -77,11 +79,13 @@ public class HuffmanTableDecode {
             "}";
 
         graph.setAttribute("ui.stylesheet", styleSheet);
-
         graphVisualization(graph, root);
+        graph.setAttribute("ui.title", "Huffman Tree | Nodes: " + totalNodes + " | Average Bits: " + (allBits/totalNodes));
 
         try{
+            System.setProperty("org.graphstream.ui", "swing");
             Viewer viewer = graph.display();
+            viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
             viewer.enableAutoLayout(new LinLog());
         } catch(Exception e){
             System.err.println("Graph display failed: " + e.getLocalizedMessage());
@@ -137,14 +141,17 @@ public class HuffmanTableDecode {
             return;
 
         org.graphstream.graph.Node n = graph.addNode(Integer.toString(node.key));
-        //n.setAttribute("x", rank(node.key));
-        //n.setAttribute("y", depth(node.key)*-1);
+        totalNodes++;
         n.setAttribute("ui.label", node.symbol == -1 ? "" : node.symbol);
+        allBits += node.symbol == -1 ? 0 : node.key;
         if(node.symbol != -1)
         {
             n.setAttribute("ui.style", "fill-color: rgb(255, 0, 0);");
         }
-
+        if(totalNodes == 1) // differentiate the first "root" node
+        {
+            n.setAttribute("ui.style", "fill-color: rgb(0, 0, 255);");
+        }
 
         if(node.children != null){
             graphVisualization(graph, node.children[0]);

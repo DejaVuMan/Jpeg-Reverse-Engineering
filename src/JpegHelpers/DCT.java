@@ -2,7 +2,7 @@ package JpegHelpers;
 
 public class DCT {
     int blockSize = 8; // Generally, Discreet Cosine Transforms are done in blocks of 8x8 pixels
-    int quality = 100; // default quality value
+    int quality = 100; // default quality value - 1 = Highest Quality??????
     public Object[] quantizationValues = new Object[2]; // hold quantization tables for luminance and chrominance
     public Object[] divisorValues = new Object[2]; // hold divisors for luminance and chrominance
     // Theoretically we could change Object[] to Number[], but then we'd also need to type cast everything to Number
