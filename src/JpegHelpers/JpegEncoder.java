@@ -17,7 +17,6 @@ public class JpegEncoder {
     int dataStartPoint;
     BufferedOutputStream outputStream;
     DCT dct = new DCT();
-    ArrayList<Double> RMSEPool = new ArrayList<>();
 
     public static int[] jpegNaturalOrder = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
             12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
@@ -105,7 +104,6 @@ public class JpegEncoder {
         // End Marker
         byte[] endOfImage = { (byte)0xFF, (byte)0xD9 };
         WriteMarker(endOfImage, outputStream);
-        //System.out.println("RMSE of DCTs: " + MeanAverage(RMSEPool));
 
         try{
             outputStream.flush();
@@ -420,35 +418,6 @@ public class JpegEncoder {
         }
         imageWriter.drawImage(dctImage, xOffset, yOffset, null);
     }
-    // TODO: Revamp RMSE Func to compare original values versus after decoding values
-//    public double RootMeanSquareError(float[][] observed, int[] forecast){
-//        // also do this for all 3 channels, avg those values and then do sqrt
-//        // rmse can be summarized as sqrt(mean((forecast - observed)^2))
-//        // observed is [8][8], forecast is [8*8] (so [64])
-//        double addSubResults = 0.0;
-//        for(int i = 0; i < 8; i++)
-//        {
-//            for(int j = 0; j < 8; j++)
-//            {
-//                //addSubResults += Math.pow((forecast[(8*i) + j] - observed[i][j]), 2);
-//                addSubResults += Math.abs(forecast[(8*i) + j] - observed[i][j]);
-//                // do this for whole image instead of on 8x8 blocks at a time
-//            }
-//        }
-//        addSubResults = addSubResults / 64.0;
-//        return addSubResults; // math.sqrt should be here
-//    }
 
     //TODO: i really need to organize this code better lol, there is absolutely no reason for it to be over 450 lines
-//    public double MeanAverage(ArrayList<Double> RMSEPool){
-//        System.out.println("Calculating Mean Average");
-//        System.out.println("RMSE Pool size: " + RMSEPool.size());
-//        System.out.println("Highest RMSE Value: " + Collections.max(RMSEPool));
-//        System.out.println("Lowest RMSE Value: " + Collections.min(RMSEPool));
-//        double sum = 0;
-//        for(int i = 0; i < RMSEPool.size(); i++){
-//            sum += RMSEPool.get(i);
-//        }
-//        return sum / RMSEPool.size();
-//    }
 }
