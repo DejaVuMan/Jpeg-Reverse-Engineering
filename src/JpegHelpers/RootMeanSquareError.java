@@ -23,18 +23,21 @@ public class RootMeanSquareError {
     }
 
     // TODO: Revamp RMSE Func to compare original values versus after encoding values
-    public double rmseCalculate(float[][] observed, float[][] forecast){
+    public void rmseCalculate(float[][] observed, float[][] forecast){
+        int runcount = 0;
         // also do this for all 3 channels, avg those values and then do sqrt
         // rmse can be summarized as sqrt(mean((forecast - observed)^2))
         double addSubResults = 0.0;
-        for(int i = 0; i < 8; i++)
+        for(int i = 0; i < observed.length; i++)
         {
-            for(int j = 0; j < 8; j++)
+            for(int j = 0; j < observed[0].length; j++)
             {
+                runcount++;
                 addSubResults += Math.pow((forecast[i][j] - observed[i][j]), 2);
             }
         }
-        addSubResults = addSubResults / (observed.length * observed[0].length); //
-        return Math.sqrt(addSubResults);
+        addSubResults = addSubResults / (observed.length * observed[0].length);
+        System.out.println("Calculations based on " + runcount + " values.");
+        System.out.println("Final RMSE is calculated to be " + Math.sqrt(addSubResults));
     }
 }
