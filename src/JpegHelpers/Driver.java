@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,12 +20,14 @@ public class Driver {
     JButton setPath = new JButton("Set Path");
     JButton decodeButton = new JButton("Decode (JPEG to BMP)");
     JLabel pathLabel = new JLabel("File Path:");
+    JButton calculateRMSE = new JButton("Calculate RMSE");
 
     encodeButton.setBounds(40,90,200,30);
     filePathField.setBounds(100, 50, 140, 30);
     pathLabel.setBounds(40, 50, 100, 30);
     setPath.setBounds(250, 50, 100, 30);
     decodeButton.setBounds(40, 130, 200, 30);
+    calculateRMSE.setBounds(40, 170, 200, 30);
 
 
     mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Terminate on close of window
@@ -33,6 +36,7 @@ public class Driver {
     mainWindow.add(setPath);
     mainWindow.add(decodeButton);
     mainWindow.add(pathLabel);
+    mainWindow.add(calculateRMSE);
 
     mainWindow.setSize(800,400);
     mainWindow.setLayout(null);
@@ -123,6 +127,40 @@ public class Driver {
                 fileNotFoundException.printStackTrace();
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+            }
+        });
+
+        calculateRMSE.addActionListener(e -> {
+            if(path.equals("")){
+                System.out.println("Please set a path first!");
+                return;
+            }
+
+            if (path.endsWith(".bmp") || path.endsWith(".jpg")) {
+
+                String pathWithoutExtension = path.substring(0, path.length() - 4);
+                String bmpPath = pathWithoutExtension + ".bmp";
+                String jpegPath = pathWithoutExtension + ".jpg";
+
+                try{
+
+                    BufferedImage sourceImage = ImageIO.read(new File(bmpPath));
+                    BufferedImage convertedImage = ImageIO.read(new File(jpegPath));
+
+                    RootMeanSquareError rmse = new RootMeanSquareError();
+                    float[][] sourceRGB = rmse.rgbValueMerge(sourceImage);
+                    float[][] convertedRGB = rmse.rgbValueMerge(convertedImage);
+
+                    rmse.rmseCalculate(sourceRGB, convertedRGB);
+
+                } catch(Exception exception) {
+                    System.out.println("An error occurred during RMSE calculation.");
+                    System.out.println(exception.getMessage());
+                }
+
+            } else {
+                System.out.println("Please set a valid path first!");
+                System.out.println("it should be a valid file and in BMP or JPEG format.");
             }
         });
     }
