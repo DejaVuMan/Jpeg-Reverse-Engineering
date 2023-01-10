@@ -5,6 +5,7 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -85,8 +86,9 @@ public class Driver {
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
-            } catch (IOException fileNotFoundException) {
-                fileNotFoundException.printStackTrace();
+            } catch (IOException IOException) {
+                JOptionPane.showMessageDialog(null, IOException,
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
     });
 

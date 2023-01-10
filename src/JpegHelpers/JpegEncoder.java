@@ -385,10 +385,6 @@ public class JpegEncoder {
                             dctArray2 = dct.QuantizeBlock(dctArray1, qTableNumber[comp]);
                             if(dctNotEntered)
                             {
-                                // root mean square error formula
-                                //RMSEPool.add(RootMeanSquareError(dctArray0, dctArray2));
-                                // get original values before any changes (i.e colorspace changes)
-                                // compare after encoding
                                 WriteDCTImage(dctDrawer,dctArray1, xDct, yDct);
                                 dctNotEntered = false;
                             }
@@ -419,6 +415,4 @@ public class JpegEncoder {
         }
         imageWriter.drawImage(dctImage, xOffset, yOffset, null);
     }
-
-    //TODO: i really need to organize this code better lol, there is absolutely no reason for it to be over 450 lines
 }
