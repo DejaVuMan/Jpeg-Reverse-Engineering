@@ -123,12 +123,10 @@ public class Driver {
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
-            } catch (FileNotFoundException fileNotFoundException) {
+            } catch (IOException fileNotFoundException) {
                 fileNotFoundException.printStackTrace();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
             }
-        });
+    });
 
         calculateRMSE.addActionListener(e -> {
             if(path.equals("")){

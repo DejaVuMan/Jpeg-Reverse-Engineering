@@ -38,6 +38,7 @@ public class RootMeanSquareError {
         addSubResults = addSubResults / (observed.length * observed[0].length);
         System.out.println("Calculations based on " + runcount + " values.");
         System.out.println("Final RMSE is calculated to be " + Math.sqrt(addSubResults));
+        maeCalculate(observed, forecast);
     }
 
     public void mseCalculate(float[][] observed, float[][] forecast){
@@ -56,5 +57,21 @@ public class RootMeanSquareError {
         addSubResults = addSubResults / (observed.length * observed[0].length);
         System.out.println("Calculations based on " + runcount + " values.");
         System.out.println("Final MSE is calculated to be " + addSubResults);
+    }
+
+    public void maeCalculate(float[][] observed, float[][] forecast){
+        // mean absolute error
+        double addSubResults = 0.0;
+        int runcount = 0;
+        for(int i = 0; i < observed.length; i++) {
+            for (int j = 0; j < observed[0].length; j++) {
+                runcount++;
+                addSubResults += Math.abs(forecast[i][j] - observed[i][j]);
+            }
+        }
+
+        addSubResults = addSubResults / (observed.length * observed[0].length);
+        System.out.println("Calculations based on " + runcount + " values.");
+        System.out.println("Final MAE is calculated to be " + addSubResults);
     }
 }

@@ -1,5 +1,7 @@
 package JpegHelpers;
 
+import java.util.Arrays;
+
 public class DCT {
     int blockSize = 8; // Generally, Discreet Cosine Transforms are done in blocks of 8x8 pixels
     int quality = 100; // default quality value - 1 = Highest Quality??????
@@ -104,6 +106,8 @@ public class DCT {
         quantizationValues[0] = quantumLuminance;
         quantizationValues[1] = quantumChrominance;
         divisorValues[0] = divisorLuminance;
+        // remove this for final version
+        System.out.println(Arrays.deepToString(divisorValues));
         divisorValues[1] = divisorChrominance;
     }
 
