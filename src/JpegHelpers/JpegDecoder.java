@@ -60,6 +60,7 @@ class JpegDecoder { // JPG and JPEG are the same thing :)
         System.out.println("Reading Jpeg File: " + fileName);
 
         // Decoding
+
         main:
         for (int i = 0; i < jpegImageData.length; i++) {
             //System.out.println("Reached Element " + i + ". Value: " + jpegImageData[i]); // gets stuck on Value 255 After JPEG Sampling Factor ID? Element 1281
