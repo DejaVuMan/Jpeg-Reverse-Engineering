@@ -10,7 +10,7 @@ public class JpegEncoder {
     HuffmanTableEncode huf;
     private int width;
     private int height;
-    int quality = 100; // quality we want to encode JPEG into (0 to 100)
+    int quality = 50; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
     BufferedOutputStream outputStream;
     DCT dct = new DCT(quality);
@@ -20,8 +20,8 @@ public class JpegEncoder {
             29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62,
             63, }; // Inline with JPEGQ class standard which uses natural order
 
-    public int GetQuality(){
-        return quality;
+    public void SetQuality(int requestedQuality){
+        quality = requestedQuality;
     }
 
     void Encode(String image) throws IOException{
@@ -86,7 +86,8 @@ public class JpegEncoder {
         System.out.println("Completed RGB to YCbCr conversion.");
 
         System.out.println("Creating Buffered output stream...");
-        outputStream = new BufferedOutputStream(new FileOutputStream(image.substring(0, image.length()-4) + ".jpg"));
+        outputStream = new BufferedOutputStream(
+                new FileOutputStream(image.substring(0, image.length()-4) + "_" + quality +".jpg"));
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
