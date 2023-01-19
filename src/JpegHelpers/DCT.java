@@ -19,6 +19,7 @@ public class DCT {
 
     public void setQuality(int num) {
         quality = num;
+        System.out.println("Quality is set to " + quality);
     }
 
     // Construct new DCT object - initialize our cosine transform table used for computing DCT, as well as ZigZag table
@@ -46,6 +47,8 @@ public class DCT {
         if (quality > 100) {
             quality = 100;
         }
+
+        System.out.println("Quality used: " + quality);
 
         // Luminance table - redefine so we dont have to enter each index value by hand
         quantumLuminance = new int[]{

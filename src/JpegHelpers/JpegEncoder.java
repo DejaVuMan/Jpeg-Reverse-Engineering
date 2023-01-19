@@ -13,7 +13,7 @@ public class JpegEncoder {
     int quality = 50; // quality we want to encode JPEG into (0 to 100)
     int dataStartPoint;
     BufferedOutputStream outputStream;
-    DCT dct = new DCT(quality);
+    DCT dct;
 
     public static int[] jpegNaturalOrder = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
             12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36,
@@ -22,6 +22,7 @@ public class JpegEncoder {
 
     public void SetQuality(int requestedQuality){
         quality = requestedQuality;
+        System.out.println("Quality used (call from JpegEncoder): " + quality);
     }
 
     void Encode(String image) throws IOException{
@@ -93,7 +94,8 @@ public class JpegEncoder {
 
 
         System.out.println("Preparing DCT...");
-        dct.setQuality(quality);
+        dct = new DCT(quality);
+        //dct.setQuality(quality);
         System.out.println("Initializing Huffman Table...");
         huf = new HuffmanTableEncode(width, height);
 
