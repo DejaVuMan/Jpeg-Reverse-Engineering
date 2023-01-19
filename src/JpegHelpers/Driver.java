@@ -158,12 +158,11 @@ public class Driver {
             }
 
             if (path.endsWith(".bmp") || path.endsWith(".jpg")) {
-
-                String pathWithoutExtension = path.substring(0, path.length() - 4);
-                String bmpPath = pathWithoutExtension + ".bmp";
-                String jpegPath = pathWithoutExtension + ".jpg";
-
                 try{
+
+                    String pathWithoutExtension = path.substring(0, path.length() - 4);
+                    String bmpPath = pathWithoutExtension + ".bmp";
+                    String jpegPath = pathWithoutExtension + ".jpg";
 
                     BufferedImage sourceImage = ImageIO.read(new File(bmpPath));
                     BufferedImage convertedImage = ImageIO.read(new File(jpegPath));

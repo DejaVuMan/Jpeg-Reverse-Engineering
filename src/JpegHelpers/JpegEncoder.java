@@ -87,7 +87,10 @@ public class JpegEncoder {
 
         System.out.println("Creating Buffered output stream...");
         outputStream = new BufferedOutputStream(
-                new FileOutputStream(image.substring(0, image.length()-4) + "_" + quality +".jpg"));
+                new FileOutputStream(image.substring(0, image.length()-4) + ".jpg"));
+//        outputStream = new BufferedOutputStream(
+//                new FileOutputStream(image.substring(0, image.length()-4) + "_" + quality +".jpg"));
+
 
         System.out.println("Preparing DCT...");
         dct.setQuality(quality);
