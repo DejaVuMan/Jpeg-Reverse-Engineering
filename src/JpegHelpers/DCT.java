@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class DCT {
     int blockSize = 8; // Generally, Discreet Cosine Transforms are done in blocks of 8x8 pixels
-    int quality = 100; // default quality value - 1 = Highest Quality??????
+    int quality = 0; // default quality value - 1 = Highest Quality??????
     public Object[] quantizationValues = new Object[2]; // hold quantization tables for luminance and chrominance
     public Object[] divisorValues = new Object[2]; // hold divisors for luminance and chrominance
     // Theoretically we could change Object[] to Number[], but then we'd also need to type cast everything to Number
@@ -25,11 +25,11 @@ public class DCT {
     // Much of this is the same from DCT3, but because I forgot to do documentation when I was creating it I am
     // not sure how it works now lol
 
-    public DCT() {
-        Initialize();
+    public DCT(int selectedQuality) {
+        Initialize(selectedQuality);
     }
 
-    private void Initialize() {
+    private void Initialize(int selectedQuality) {
         double[] scaleFactor = {
                 1.0, 1.387039845, 1.306562965, 1.175875602, 1.0, 0.785694958, 0.541196100, 0.275899379
         };
@@ -37,6 +37,8 @@ public class DCT {
         int j;
         int index;
         int temp;
+
+        quality = selectedQuality;
 
         if (quality < 1) { // quality cannot be less than 1
             quality = 1;

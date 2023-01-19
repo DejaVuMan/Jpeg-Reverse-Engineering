@@ -5,9 +5,7 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.Console;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -57,8 +55,10 @@ public class Driver {
             return;
         }
         try {
+
+            JpegEncoder encoder = new JpegEncoder();
             Instant start = Instant.now();
-            new JpegEncoder().Encode(path); // this is jpeg encoder
+            encoder.Encode(path);
             Instant end = Instant.now();
             System.out.println("Total Time elapsed: " + java.time.Duration.between(start, end).toMillis() + "ms");
 
@@ -86,7 +86,7 @@ public class Driver {
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
-            } catch (IOException IOException) {
+            } catch (Exception IOException) {
                 JOptionPane.showMessageDialog(null, IOException,
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
