@@ -79,6 +79,7 @@ public class Driver {
         try {
 
             JpegEncoder encoder = new JpegEncoder();
+            encoder.SetQuality(quality);
             Instant start = Instant.now();
             encoder.Encode(path);
             Instant end = Instant.now();
