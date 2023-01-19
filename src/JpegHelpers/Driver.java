@@ -8,9 +8,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Hashtable;
 
 public class Driver {
     private static String path = ""; // empty initial path to be changed on button press.
+    private static Integer quality = 50; // default quality value
     public static void main(String[] args) {
     JFrame mainWindow = new JFrame("JPEG Encoder");
 
@@ -20,6 +22,7 @@ public class Driver {
     JButton decodeButton = new JButton("Decode (JPEG to BMP)");
     JLabel pathLabel = new JLabel("File Path:");
     JButton calculateRMSE = new JButton("Calculate RMSE");
+    JSlider qualitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
 
     encodeButton.setBounds(40,90,200,30);
     filePathField.setBounds(100, 50, 140, 30);
@@ -27,6 +30,21 @@ public class Driver {
     setPath.setBounds(250, 50, 100, 30);
     decodeButton.setBounds(40, 130, 200, 30);
     calculateRMSE.setBounds(40, 170, 200, 30);
+
+    qualitySlider.setBounds(40, 210, 200, 60);
+    qualitySlider.setMajorTickSpacing(10);
+    qualitySlider.setMinorTickSpacing(1);
+    qualitySlider.setPaintTicks(true);
+
+    // TODO: Move UI elems called on to separate class?
+
+    // Label Table for qualitySlider
+    Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+    labelTable.put(0, new JLabel("Quality"));
+    labelTable.put(100, new JLabel("Compression"));
+    qualitySlider.setLabelTable(labelTable);
+
+    qualitySlider.setPaintLabels(true);
 
 
     mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Terminate on close of window
@@ -36,6 +54,7 @@ public class Driver {
     mainWindow.add(decodeButton);
     mainWindow.add(pathLabel);
     mainWindow.add(calculateRMSE);
+    mainWindow.add(qualitySlider);
 
     mainWindow.setSize(800,400);
     mainWindow.setLayout(null);
@@ -43,9 +62,12 @@ public class Driver {
 
     setPath.addActionListener(e -> {
         path = filePathField.getText();
-        System.out.println("Path set to: " + path);
     });
-    //TODO: Move to separate class for better organization and code readability
+
+    qualitySlider.addChangeListener(e -> {
+        quality = qualitySlider.getValue();
+    });
+
     encodeButton.addActionListener(e -> {
         if(path.equals("")){
             System.out.println("Please set a path first!");
