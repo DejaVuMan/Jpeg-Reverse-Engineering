@@ -39,7 +39,7 @@ public class Driver {
     // TODO: Move UI elems called on to separate class?
 
     // Label Table for qualitySlider
-    Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+    Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
     labelTable.put(0, new JLabel("Quality"));
     labelTable.put(100, new JLabel("Compression"));
     qualitySlider.setLabelTable(labelTable);
@@ -60,13 +60,9 @@ public class Driver {
     mainWindow.setLayout(null);
     mainWindow.setVisible(true);
 
-    setPath.addActionListener(e -> {
-        path = filePathField.getText();
-    });
+    setPath.addActionListener(e -> path = filePathField.getText());
 
-    qualitySlider.addChangeListener(e -> {
-        quality = qualitySlider.getValue();
-    });
+    qualitySlider.addChangeListener(e -> quality = qualitySlider.getValue());
 
     encodeButton.addActionListener(e -> {
         if(path.isBlank()){
@@ -178,8 +174,10 @@ public class Driver {
                     double [] rmseMaeResults = rmse.rmseCalculate(sourceRGB, convertedRGB);
 
                     StringBuilder results = new StringBuilder();
-                    results.append("RMSE: " + rmseMaeResults[0] + "\n");
-                    results.append("MAE: " + rmseMaeResults[1]);
+                    results.append("RMSE: ");
+                    results.append(rmseMaeResults[0]);
+                    results.append("\nMAE: ");
+                    results.append(rmseMaeResults[1]);
 
                     JOptionPane.showMessageDialog(null, results,
                             "Results", JOptionPane.INFORMATION_MESSAGE);
