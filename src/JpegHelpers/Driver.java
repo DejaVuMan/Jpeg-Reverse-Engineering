@@ -69,11 +69,13 @@ public class Driver {
     });
 
     encodeButton.addActionListener(e -> {
-        if(path.equals("")){
-            System.out.println("Please set a path first!");
+        if(path.isBlank()){
+            JOptionPane.showMessageDialog(null, "Please set a path first!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         } else if (!path.endsWith(".bmp")){
-            System.out.println("Please set a valid BMP file path!");
+            JOptionPane.showMessageDialog(null, "Please set a valid BMP file path!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
@@ -116,11 +118,13 @@ public class Driver {
     });
 
     decodeButton.addActionListener(e -> {
-        if (path.equals("")) {
-            System.out.println("Please set a path first!");
+        if(path.isBlank()){
+            JOptionPane.showMessageDialog(null, "Please set a path first!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
-        } else if (!path.endsWith(".jpg")) {
-            System.out.println("Please set a valid JPEG file path!");
+        } else if (!path.endsWith(".jpg")){
+            JOptionPane.showMessageDialog(null, "Please set a valid JPG file path!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
@@ -146,20 +150,20 @@ public class Driver {
             doneWindow.setLayout(null);
             doneWindow.setVisible(true);
 
-            } catch (IOException fileNotFoundException) {
-                fileNotFoundException.printStackTrace();
+            } catch (Exception IOException) {
+                JOptionPane.showMessageDialog(null, IOException,
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
     });
 
         calculateRMSE.addActionListener(e -> {
-            if(path.equals("")){
-                System.out.println("Please set a path first!");
+            if(path.isBlank()){
+                JOptionPane.showMessageDialog(null, "Please set a path first!",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
             if (path.endsWith(".bmp") || path.endsWith(".jpg")) {
                 try{
-
                     String pathWithoutExtension = path.substring(0, path.length() - 4);
                     String bmpPath = pathWithoutExtension + ".bmp";
                     String jpegPath = pathWithoutExtension + ".jpg";
@@ -171,16 +175,24 @@ public class Driver {
                     float[][] sourceRGB = rmse.rgbValueMerge(sourceImage);
                     float[][] convertedRGB = rmse.rgbValueMerge(convertedImage);
 
-                    rmse.rmseCalculate(sourceRGB, convertedRGB);
+                    double [] rmseMaeResults = rmse.rmseCalculate(sourceRGB, convertedRGB);
+
+                    StringBuilder results = new StringBuilder();
+                    results.append("RMSE: " + rmseMaeResults[0] + "\n");
+                    results.append("MAE: " + rmseMaeResults[1]);
+
+                    JOptionPane.showMessageDialog(null, results,
+                            "Results", JOptionPane.INFORMATION_MESSAGE);
 
                 } catch(Exception exception) {
-                    System.out.println("An error occurred during RMSE calculation.");
-                    System.out.println(exception.getMessage());
+                    JOptionPane.showMessageDialog(null, exception,
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
             } else {
-                System.out.println("Please set a valid path first!");
-                System.out.println("it should be a valid file and in BMP or JPEG format.");
+                String sb = "Please set a valid path first!\n it should be a valid file and in BMP or JPEG format.";
+                JOptionPane.showMessageDialog(null, sb,
+                        "Warning", JOptionPane.WARNING_MESSAGE);
             }
         });
     }
